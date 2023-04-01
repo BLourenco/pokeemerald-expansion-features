@@ -275,6 +275,36 @@ $(TILESETGFXDIR)/secondary/mystery_events_house/tiles.4bpp: %.4bpp: %.png
 	$(GFX) $< $@ -num_tiles 509 -Wnum_tiles
 
 
+$(TILESETGFXDIR)/primary/building_FRLG/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 640 -Wnum_tiles
+
+$(TILESETGFXDIR)/primary/general_FRLG/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 640 -Wnum_tiles
+
+$(TILESETGFXDIR)/secondary/pokemon_center_FRLG/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 376 -Wnum_tiles
+
+$(TILESETGFXDIR)/secondary/seafoam_islands/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 318 -Wnum_tiles
+
+$(TILESETGFXDIR)/secondary/generic_building_2/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 152 -Wnum_tiles
+
+$(TILESETGFXDIR)/secondary/sevii_islands_45/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 374 -Wnum_tiles
+
+$(TILESETGFXDIR)/secondary/safari_zone_building/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 90 -Wnum_tiles
+
+$(TILESETGFXDIR)/secondary/fan_club_daycare/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 85 -Wnum_tiles
+
+$(TILESETGFXDIR)/secondary/mart_FRLG/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 36 -Wnum_tiles
+
+$(TILESETGFXDIR)/secondary/island_harbor_FRLG/tiles.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 165 -Wnum_tiles
+
 
 ### Fonts ###
 

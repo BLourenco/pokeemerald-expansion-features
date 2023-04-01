@@ -1,0 +1,33 @@
+{
+  "id": "MAP_FOUR_ISLAND_MART",
+  "name": "FourIsland_Mart",
+  "layout": "LAYOUT_MART_FRLG",
+  "music": "MUS_POKE_CENTER",
+  "region_map_section": "MAPSEC_FOUR_ISLAND",
+  "requires_flash": false,
+  "weather": "WEATHER_NONE",
+  "map_type": "MAP_TYPE_INDOOR",
+  "allow_cycling": false,
+  "allow_escaping": false,
+  "allow_running": false,
+  "show_map_name": false,
+  "battle_scene": "MAP_BATTLE_SCENE_NORMAL",
+  "connections": 0,
+  "object_events": [],
+  "warp_events": [
+    {
+      "x": 4,
+      "y": 7,
+      "elevation": 3,
+      "dest_map": "MAP_FOUR_ISLAND",
+      "dest_warp_id": "7"
+    }
+  ],
+  "coord_events": [
+
+  ],
+  "bg_events": [
+
+  ],
+  "floor_number": 0
+}

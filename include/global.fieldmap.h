@@ -42,8 +42,9 @@ struct Tileset
     /*0x04*/ const u32 *tiles;
     /*0x08*/ const u16 (*palettes)[16];
     /*0x0C*/ const u16 *metatiles;
-    /*0x10*/ const u16 *metatileAttributes;
+    /*0x10*/ const u32 *metatileAttributes;
     /*0x14*/ TilesetCB callback;
+    /*0x15*/ bool8 isFRLGTileset;
 };
 
 struct MapLayout
@@ -54,6 +55,9 @@ struct MapLayout
     /*0x0C*/ u16 *map;
     /*0x10*/ struct Tileset *primaryTileset;
     /*0x14*/ struct Tileset *secondaryTileset;
+    /*0x18*/ u8 borderWidth;
+    /*0x19*/ u8 borderHeight;
+    /*0x1A*/ bool8 isFRLGLayout;
 };
 
 struct BackupMapLayout

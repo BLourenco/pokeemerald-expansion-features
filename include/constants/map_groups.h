@@ -591,6 +591,25 @@
 // gMapGroup_IndoorRoute124
 #define MAP_ROUTE124_DIVING_TREASURE_HUNTERS_HOUSE (0 | (33 << 8))
 
-#define MAP_GROUPS_COUNT 34
+// gMapGroup_TownsAndRoutes_FRLG
+#define MAP_FOUR_ISLAND (0 | (34 << 8))
+
+// gMapGroup_Dungeons_FRLG
+#define MAP_FOUR_ISLAND_ICEFALL_CAVE_ENTRANCE (0 | (35 << 8))
+#define MAP_FOUR_ISLAND_ICEFALL_CAVE_1F       (1 | (35 << 8))
+#define MAP_FOUR_ISLAND_ICEFALL_CAVE_B1F      (2 | (35 << 8))
+#define MAP_FOUR_ISLAND_ICEFALL_CAVE_BACK     (3 | (35 << 8))
+
+// gMapGroup_IndoorFourIsland
+#define MAP_FOUR_ISLAND_POKEMON_DAY_CARE  (0 | (36 << 8))
+#define MAP_FOUR_ISLAND_POKEMON_CENTER_1F (1 | (36 << 8))
+#define MAP_FOUR_ISLAND_POKEMON_CENTER_2F (2 | (36 << 8))
+#define MAP_FOUR_ISLAND_HOUSE1            (3 | (36 << 8))
+#define MAP_FOUR_ISLAND_LORELEIS_HOUSE    (4 | (36 << 8))
+#define MAP_FOUR_ISLAND_HARBOR            (5 | (36 << 8))
+#define MAP_FOUR_ISLAND_HOUSE2            (6 | (36 << 8))
+#define MAP_FOUR_ISLAND_MART              (7 | (36 << 8))
+
+#define MAP_GROUPS_COUNT 37
 
 #endif // GUARD_CONSTANTS_MAP_GROUPS_H

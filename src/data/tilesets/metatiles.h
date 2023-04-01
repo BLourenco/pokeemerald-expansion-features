@@ -207,3 +207,33 @@ const u16 gMetatileAttributes_MysteryEventsHouse[] = INCBIN_U16("data/tilesets/s
 
 const u16 gMetatiles_UnionRoom[] = INCBIN_U16("data/tilesets/secondary/union_room/metatiles.bin");
 const u16 gMetatileAttributes_UnionRoom[] = INCBIN_U16("data/tilesets/secondary/union_room/metatile_attributes.bin");
+
+const u16 gMetatiles_General_FRLG[] = INCBIN_U16("data/tilesets/primary/general_FRLG/metatiles.bin");
+const u32 gMetatileAttributes_General_FRLG[] = INCBIN_U32("data/tilesets/primary/general_FRLG/metatile_attributes.bin");
+
+const u16 gMetatiles_Building_FRLG[] = INCBIN_U16("data/tilesets/primary/building_FRLG/metatiles.bin");
+const u32 gMetatileAttributes_Building_FRLG[] = INCBIN_U32("data/tilesets/primary/building_FRLG/metatile_attributes.bin");
+
+const u16 gMetatiles_PokemonCenter_FRLG[] = INCBIN_U16("data/tilesets/secondary/pokemon_center_FRLG/metatiles.bin");
+const u16 gMetatileAttributes_PokemonCenter_FRLG[] = INCBIN_U16("data/tilesets/secondary/pokemon_center_FRLG/metatile_attributes.bin");
+
+const u16 gMetatiles_Mart_FRLG[] = INCBIN_U16("data/tilesets/secondary/mart_FRLG/metatiles.bin");
+const u32 gMetatileAttributes_Mart_FRLG[] = INCBIN_U32("data/tilesets/secondary/mart_FRLG/metatile_attributes.bin");
+
+const u16 gMetatiles_SeafoamIslands[] = INCBIN_U16("data/tilesets/secondary/seafoam_islands/metatiles.bin");
+const u32 gMetatileAttributes_SeafoamIslands[] = INCBIN_U32("data/tilesets/secondary/seafoam_islands/metatile_attributes.bin");
+
+const u16 gMetatiles_GenericBuilding2[] = INCBIN_U16("data/tilesets/secondary/generic_building_2/metatiles.bin");
+const u32 gMetatileAttributes_GenericBuilding2[] = INCBIN_U32("data/tilesets/secondary/generic_building_2/metatile_attributes.bin");
+
+const u16 gMetatiles_SafariZoneBuilding[] = INCBIN_U16("data/tilesets/secondary/safari_zone_building/metatiles.bin");
+const u32 gMetatileAttributes_SafariZoneBuilding[] = INCBIN_U32("data/tilesets/secondary/safari_zone_building/metatile_attributes.bin");
+
+const u16 gMetatiles_FanClubDaycare[] = INCBIN_U16("data/tilesets/secondary/fan_club_daycare/metatiles.bin");
+const u32 gMetatileAttributes_FanClubDaycare[] = INCBIN_U32("data/tilesets/secondary/fan_club_daycare/metatile_attributes.bin");
+
+const u16 gMetatiles_SeviiIslands45[] = INCBIN_U16("data/tilesets/secondary/sevii_islands_45/metatiles.bin");
+const u32 gMetatileAttributes_SeviiIslands45[] = INCBIN_U32("data/tilesets/secondary/sevii_islands_45/metatile_attributes.bin");
+
+const u16 gMetatiles_IslandHarbor_FRLG[] = INCBIN_U16("data/tilesets/secondary/island_harbor_FRLG/metatiles.bin");
+const u32 gMetatileAttributes_IslandHarbor_FRLG[] = INCBIN_U32("data/tilesets/secondary/island_harbor_FRLG/metatile_attributes.bin");

@@ -2,10 +2,13 @@
 #define GUARD_FIELDMAP_H
 
 #define NUM_TILES_IN_PRIMARY 512
+#define NUM_TILES_IN_PRIMARY_FRLG 640
 #define NUM_TILES_TOTAL 1024
 #define NUM_METATILES_IN_PRIMARY 512
+#define NUM_METATILES_IN_PRIMARY_FRLG 640
 #define NUM_METATILES_TOTAL 1024
 #define NUM_PALS_IN_PRIMARY 6
+#define NUM_PALS_IN_PRIMARY_FRLG 7
 #define NUM_PALS_TOTAL 13
 #define MAX_MAP_DATA_SIZE 10240
 
@@ -51,6 +54,11 @@ void CopySecondaryTilesetToVram(const struct MapLayout *);
 struct MapHeader const *const GetMapHeaderFromConnection(struct MapConnection *connection);
 struct MapConnection *GetMapConnectionAtPos(s16 x, s16 y);
 void MapGridSetMetatileImpassabilityAt(int x, int y, bool32 impassable);
+
+u16 GetNumTilesInPrimaryTileset(struct MapLayout const *mapLayout);
+u16 GetNumPalettesInPrimaryTilesetFromLayout(struct MapLayout const *mapLayout);
+u16 GetNumPalettesInPrimaryTilesetFromTileset(struct Tileset const *tileset);
+u16 GetNumMetatilesInPrimaryTileset(struct MapLayout const *mapLayout);
 
 // field_region_map.c
 void FieldInitRegionMap(MainCallback callback);

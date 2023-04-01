@@ -48,15 +48,22 @@ static struct MapConnection *GetIncomingConnection(u8 direction, int x, int y);
 static bool8 IsPosInIncomingConnectingMap(u8 direction, int x, int y, struct MapConnection *connection);
 static bool8 IsCoordInIncomingConnectingMap(int coord, int srcMax, int destMax, int offset);
 
-#define GetBorderBlockAt(x, y)({                                                                   \
-    u16 block;                                                                                     \
-    int i;                                                                                         \
-    u16 *border = gMapHeader.mapLayout->border;                                                    \
-                                                                                                   \
-    i = (x + 1) & 1;                                                                               \
-    i += ((y + 1) & 1) * 2;                                                                        \
-                                                                                                   \
-    block = gMapHeader.mapLayout->border[i] | MAPGRID_COLLISION_MASK;                              \
+#define GetBorderBlockAt(x, y) ({                                                                 \
+    u16 block;                                                                                    \
+    s32 xprime;                                                                                   \
+    s32 yprime;                                                                                   \
+                                                                                                  \
+    const struct MapLayout *mapLayout = gMapHeader.mapLayout;                                     \
+                                                                                                  \
+    xprime = x - MAP_OFFSET;                                                                      \
+    xprime += 8 * mapLayout->borderWidth;                                                         \
+    xprime %= mapLayout->borderWidth;                                                             \
+                                                                                                  \
+    yprime = y - MAP_OFFSET;                                                                      \
+    yprime += 8 * mapLayout->borderHeight;                                                        \
+    yprime %= mapLayout->borderHeight;                                                            \
+                                                                                                  \
+    block = mapLayout->border[xprime + yprime * mapLayout->borderWidth] | MAPGRID_COLLISION_MASK; \
 })
 
 #define AreCoordsWithinMapGridBounds(x, y) (x >= 0 && x < gBackupMapLayout.width && y >= 0 && y < gBackupMapLayout.height)
@@ -406,8 +413,8 @@ void MapGridSetMetatileEntryAt(int x, int y, u16 metatile)
 
 u16 GetMetatileAttributesById(u16 metatile)
 {
-    const u16 *attributes;
-    if (metatile < NUM_METATILES_IN_PRIMARY)
+    const u32 *attributes;
+    if (metatile < GetNumMetatilesInPrimaryTileset(gMapHeader.mapLayout))
     {
         attributes = gMapHeader.mapLayout->primaryTileset->metatileAttributes;
         return attributes[metatile];
@@ -415,7 +422,7 @@ u16 GetMetatileAttributesById(u16 metatile)
     else if (metatile < NUM_METATILES_TOTAL)
     {
         attributes = gMapHeader.mapLayout->secondaryTileset->metatileAttributes;
-        return attributes[metatile - NUM_METATILES_IN_PRIMARY];
+        return attributes[metatile - GetNumMetatilesInPrimaryTileset(gMapHeader.mapLayout)];
     }
     else
     {
@@ -885,7 +892,7 @@ void LoadTilesetPalette(struct Tileset const *tileset, u16 destOffset, u16 size)
         }
         else if (tileset->isSecondary == TRUE)
         {
-            LoadPalette(tileset->palettes[NUM_PALS_IN_PRIMARY], destOffset, size);
+            LoadPalette(tileset->palettes[GetNumPalettesInPrimaryTilesetFromTileset(tileset)], destOffset, size);
             ApplyGlobalTintToPaletteEntries(destOffset, size >> 1);
         }
         else
@@ -898,35 +905,35 @@ void LoadTilesetPalette(struct Tileset const *tileset, u16 destOffset, u16 size)
 
 void CopyPrimaryTilesetToVram(struct MapLayout const *mapLayout)
 {
-    CopyTilesetToVram(mapLayout->primaryTileset, NUM_TILES_IN_PRIMARY, 0);
+    CopyTilesetToVram(mapLayout->primaryTileset, GetNumTilesInPrimaryTileset(mapLayout), 0);
 }
 
 void CopySecondaryTilesetToVram(struct MapLayout const *mapLayout)
 {
-    CopyTilesetToVram(mapLayout->secondaryTileset, NUM_TILES_TOTAL - NUM_TILES_IN_PRIMARY, NUM_TILES_IN_PRIMARY);
+    CopyTilesetToVram(mapLayout->secondaryTileset, NUM_TILES_TOTAL - GetNumTilesInPrimaryTileset(mapLayout), GetNumTilesInPrimaryTileset(mapLayout));
 }
 
 void CopySecondaryTilesetToVramUsingHeap(struct MapLayout const *mapLayout)
 {
-    CopyTilesetToVramUsingHeap(mapLayout->secondaryTileset, NUM_TILES_TOTAL - NUM_TILES_IN_PRIMARY, NUM_TILES_IN_PRIMARY);
+    CopyTilesetToVramUsingHeap(mapLayout->secondaryTileset, NUM_TILES_TOTAL - GetNumTilesInPrimaryTileset(mapLayout), GetNumTilesInPrimaryTileset(mapLayout));
 }
 
 static void LoadPrimaryTilesetPalette(struct MapLayout const *mapLayout)
 {
-    LoadTilesetPalette(mapLayout->primaryTileset, BG_PLTT_ID(0), NUM_PALS_IN_PRIMARY * PLTT_SIZE_4BPP);
+    LoadTilesetPalette(mapLayout->primaryTileset, BG_PLTT_ID(0), GetNumPalettesInPrimaryTilesetFromLayout(mapLayout) * PLTT_SIZE_4BPP);
 }
 
 void LoadSecondaryTilesetPalette(struct MapLayout const *mapLayout)
 {
-    LoadTilesetPalette(mapLayout->secondaryTileset, BG_PLTT_ID(NUM_PALS_IN_PRIMARY), (NUM_PALS_TOTAL - NUM_PALS_IN_PRIMARY) * PLTT_SIZE_4BPP);
+    LoadTilesetPalette(mapLayout->secondaryTileset, BG_PLTT_ID(GetNumPalettesInPrimaryTilesetFromLayout(mapLayout)), (NUM_PALS_TOTAL - GetNumPalettesInPrimaryTilesetFromLayout(mapLayout)) * PLTT_SIZE_4BPP);
 }
 
 void CopyMapTilesetsToVram(struct MapLayout const *mapLayout)
 {
     if (mapLayout)
     {
-        CopyTilesetToVramUsingHeap(mapLayout->primaryTileset, NUM_TILES_IN_PRIMARY, 0);
-        CopyTilesetToVramUsingHeap(mapLayout->secondaryTileset, NUM_TILES_TOTAL - NUM_TILES_IN_PRIMARY, NUM_TILES_IN_PRIMARY);
+        CopyTilesetToVramUsingHeap(mapLayout->primaryTileset, GetNumTilesInPrimaryTileset(mapLayout), 0);
+        CopyTilesetToVramUsingHeap(mapLayout->secondaryTileset, NUM_TILES_TOTAL - GetNumTilesInPrimaryTileset(mapLayout), GetNumTilesInPrimaryTileset(mapLayout));
     }
 }
 
@@ -937,4 +944,24 @@ void LoadMapTilesetPalettes(struct MapLayout const *mapLayout)
         LoadPrimaryTilesetPalette(mapLayout);
         LoadSecondaryTilesetPalette(mapLayout);
     }
+}
+
+u16 GetNumTilesInPrimaryTileset(struct MapLayout const *mapLayout)
+{
+    return mapLayout->isFRLGLayout ? NUM_TILES_IN_PRIMARY_FRLG : NUM_TILES_IN_PRIMARY;
+}
+
+u16 GetNumPalettesInPrimaryTilesetFromLayout(struct MapLayout const *mapLayout)
+{
+    return mapLayout->isFRLGLayout ? NUM_PALS_IN_PRIMARY_FRLG : NUM_PALS_IN_PRIMARY;
+}
+
+u16 GetNumPalettesInPrimaryTilesetFromTileset(struct Tileset const *tileset)
+{
+    return tileset->isFRLGTileset ? NUM_PALS_IN_PRIMARY_FRLG : NUM_PALS_IN_PRIMARY;
+}
+
+u16 GetNumMetatilesInPrimaryTileset(struct MapLayout const *mapLayout)
+{
+    return mapLayout->isFRLGLayout ? NUM_METATILES_IN_PRIMARY_FRLG : NUM_METATILES_IN_PRIMARY;
 }
