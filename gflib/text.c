@@ -2041,10 +2041,10 @@ static void DecompressGlyph_SmallNarrowOutlined(u16 glyphId, bool32 isJapanese)
     }
 }
 
-static u32 GetGlyphWidth_SmallOutlined(u16 glyphId, bool32 isJapanese)
+static u32 GetGlyphWidth_SmallNarrowOutlined(u16 glyphId, bool32 isJapanese)
 {
     if (isJapanese == TRUE)
         return 8;
     else
-        return gFontSmallOutlinedLatinGlyphWidths[glyphId];
+        return gFontSmallNarrowOutlinedLatinGlyphWidths[glyphId];
 }

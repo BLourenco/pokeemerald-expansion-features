@@ -327,7 +327,7 @@ ALIGNED(4) const u8 gFontSmallOutlinedLatinGlyphWidths[] = {
     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  3,
 };
 
-ALIGNED(4) const u16 gFontSmallNarrowOutlinedLatinGlyphs[] = INCBIN_U16("graphics/fonts/small_outlined.latfont");
+ALIGNED(4) const u16 gFontSmallNarrowOutlinedLatinGlyphs[] = INCBIN_U16("graphics/fonts/small_narrow_outlined.latfont");
 ALIGNED(4) const u8 gFontSmallNarrowOutlinedLatinGlyphWidths[] = {
     3,  5,  5,  5,  5,  5,  5,  5,  5,  4,  3,  4,  4,  5,  5,  5,
     5,  5,  5,  5,  5,  5,  5,  5,  3,  5,  5,  5,  5,  5,  4,  3,
