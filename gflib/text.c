@@ -25,6 +25,7 @@ static u16 FontFunc_Narrow(struct TextPrinter *);
 static u16 FontFunc_SmallNarrow(struct TextPrinter *);
 static u16 FontFunc_SmallOutlined(struct TextPrinter *);
 static u16 FontFunc_SmallNarrowOutlined(struct TextPrinter *);
+static u16 FontFunc_TinyOutlined(struct TextPrinter *);
 static void DecompressGlyph_Small(u16, bool32);
 static void DecompressGlyph_Normal(u16, bool32);
 static void DecompressGlyph_Short(u16, bool32);
@@ -32,6 +33,7 @@ static void DecompressGlyph_Narrow(u16, bool32);
 static void DecompressGlyph_SmallNarrow(u16, bool32);
 static void DecompressGlyph_SmallOutlined(u16, bool32);
 static void DecompressGlyph_SmallNarrowOutlined(u16, bool32);
+static void DecompressGlyph_TinyOutlined(u16, bool32);
 static void DecompressGlyph_Bold(u16);
 static u32 GetGlyphWidth_Small(u16, bool32);
 static u32 GetGlyphWidth_Normal(u16, bool32);
@@ -97,7 +99,8 @@ static const struct GlyphWidthFunc sGlyphWidthFuncs[] =
     { FONT_NARROW,                GetGlyphWidth_Narrow },
     { FONT_SMALL_NARROW,          GetGlyphWidth_SmallNarrow },
     { FONT_SMALL_OUTLINED,        GetGlyphWidth_SmallOutlined },
-    { FONT_SMALL_NARROW_OUTLINED, GetGlyphWidth_SmallNarrowOutlined }
+    { FONT_SMALL_NARROW_OUTLINED, GetGlyphWidth_SmallNarrowOutlined },
+    { FONT_TINY_OUTLINED,         GetGlyphWidth_TinyOutlined },
 };
 
 struct
@@ -245,6 +248,16 @@ static const struct FontInfo sFontInfos[] =
         .fgColor = 1,
         .bgColor = 2,
         .shadowColor = 3,
+    },
+    [FONT_TINY_OUTLINED] = {
+        .fontFunction = FontFunc_TinyOutlined,
+        .maxLetterWidth = 5,
+        .maxLetterHeight = 8,
+        .letterSpacing = 0,
+        .lineSpacing = 0,
+        .fgColor = 1,
+        .bgColor = 2,
+        .shadowColor = 3,
     }
 };
 
@@ -261,7 +274,8 @@ static const u8 sMenuCursorDimensions[][2] =
     [FONT_SMALL_NARROW]          = { 8,   8 },
     [FONT_BOLD]                  = {},
     [FONT_SMALL_OUTLINED]        = { 8,  12 },
-    [FONT_SMALL_NARROW_OUTLINED] = { 8,  12 }
+    [FONT_SMALL_NARROW_OUTLINED] = { 8,  12 },
+    [FONT_TINY_OUTLINED]         = { 8,  12 }
 };
 
 static const u16 sFontBoldJapaneseGlyphs[] = INCBIN_U16("graphics/fonts/bold.hwjpnfont");
@@ -824,6 +838,18 @@ static u16 FontFunc_SmallNarrowOutlined(struct TextPrinter *textPrinter)
     return RenderText(textPrinter);
 }
 
+static u16 FontFunc_TinyOutlined(struct TextPrinter *textPrinter)
+{
+    struct TextPrinterSubStruct *subStruct = (struct TextPrinterSubStruct *)(&textPrinter->subStructFields);
+
+    if (subStruct->hasFontIdBeenSet == FALSE)
+    {
+        subStruct->fontId = FONT_TINY_OUTLINED;
+        subStruct->hasFontIdBeenSet = TRUE;
+    }
+    return RenderText(textPrinter);
+}
+
 void TextPrinterInitDownArrowCounters(struct TextPrinter *textPrinter)
 {
     struct TextPrinterSubStruct *subStruct = (struct TextPrinterSubStruct *)(&textPrinter->subStructFields);
@@ -1200,6 +1226,9 @@ static u16 RenderText(struct TextPrinter *textPrinter)
             break;
         case FONT_SMALL_NARROW_OUTLINED:
             DecompressGlyph_SmallNarrowOutlined(currChar, textPrinter->japanese);
+            break;
+        case FONT_TINY_OUTLINED:
+            DecompressGlyph_TinyOutlined(currChar, textPrinter->japanese);
             break;
         case FONT_BRAILLE:
             break;
@@ -2047,4 +2076,46 @@ static u32 GetGlyphWidth_SmallNarrowOutlined(u16 glyphId, bool32 isJapanese)
         return 8;
     else
         return gFontSmallNarrowOutlinedLatinGlyphWidths[glyphId];
+}
+
+static void DecompressGlyph_TinyOutlined(u16 glyphId, bool32 isJapanese)
+{
+    const u16 *glyphs;
+
+    if (isJapanese == 1)
+    {
+        glyphs = gFontSmallJapaneseGlyphs + (0x100 * (glyphId >> 0x4)) + (0x8 * (glyphId & 0xF));
+        DecompressGlyphTile(glyphs, gCurGlyph.gfxBufferTop);
+        DecompressGlyphTile(glyphs + 0x80, gCurGlyph.gfxBufferBottom);
+        gCurGlyph.width = 8;
+        gCurGlyph.height = 12;
+    }
+    else
+    {
+        glyphs = gFontTinyOutlinedLatinGlyphs + (0x20 * glyphId);
+        gCurGlyph.width = gFontTinyOutlinedLatinGlyphWidths[glyphId];
+
+        if (gCurGlyph.width <= 8)
+        {
+            DecompressGlyphTile(glyphs, gCurGlyph.gfxBufferTop);
+            DecompressGlyphTile(glyphs + 0x10, gCurGlyph.gfxBufferBottom);
+        }
+        else
+        {
+            DecompressGlyphTile(glyphs, gCurGlyph.gfxBufferTop);
+            DecompressGlyphTile(glyphs + 0x8, gCurGlyph.gfxBufferTop + 8);
+            DecompressGlyphTile(glyphs + 0x10, gCurGlyph.gfxBufferBottom);
+            DecompressGlyphTile(glyphs + 0x18, gCurGlyph.gfxBufferBottom + 8);
+        }
+
+        gCurGlyph.height = 13;
+    }
+}
+
+static u32 GetGlyphWidth_TinyOutlined(u16 glyphId, bool32 isJapanese)
+{
+    if (isJapanese == TRUE)
+        return 8;
+    else
+        return gFontTinyOutlinedLatinGlyphWidths[glyphId];
 }

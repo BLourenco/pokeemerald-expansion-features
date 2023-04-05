@@ -320,6 +320,9 @@ $(FONTGFXDIR)/small_outlined.latfont: $(FONTGFXDIR)/latin_small_outlined.png
 $(FONTGFXDIR)/small_narrow_outlined.latfont: $(FONTGFXDIR)/latin_small_narrow_outlined.png
 	$(GFX) $< $@
 
+$(FONTGFXDIR)/tiny_outlined.latfont: $(FONTGFXDIR)/latin_tiny_outlined.png
+	$(GFX) $< $@
+
 
 ### Miscellaneous ###
 graphics/title_screen/pokemon_logo.gbapal: %.gbapal: %.pal

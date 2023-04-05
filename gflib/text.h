@@ -22,6 +22,7 @@ enum {
     FONT_BOLD, // JP glyph set only
     FONT_SMALL_OUTLINED, // 1px thicker version of below. Used for Pokemon Lv. and Gender on the health box.
     FONT_SMALL_NARROW_OUTLINED, // Ripped from BW's battle screen. Used for Pokemon names on the health box.
+    FONT_TINY_OUTLINED, // 8px tall version of above.
 };
 
 // Return values for font functions
