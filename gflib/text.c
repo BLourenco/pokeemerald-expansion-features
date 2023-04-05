@@ -42,6 +42,7 @@ static u32 GetGlyphWidth_Narrow(u16, bool32);
 static u32 GetGlyphWidth_SmallNarrow(u16, bool32);
 static u32 GetGlyphWidth_SmallOutlined(u16, bool32);
 static u32 GetGlyphWidth_SmallNarrowOutlined(u16, bool32);
+static u32 GetGlyphWidth_TinyOutlined(u16, bool32);
 
 static EWRAM_DATA struct TextPrinter sTempTextPrinter = {0};
 static EWRAM_DATA struct TextPrinter sTextPrinters[NUM_TEXT_PRINTERS] = {0};
