@@ -431,9 +431,11 @@ graphics/party_menu/bg.4bpp: %.4bpp: %.png
 $(TYPESGFXDIR)/move_types.4bpp: $(types:%=$(TYPESGFXDIR)/%.4bpp) $(contest_types:%=$(TYPESGFXDIR)/contest_%.4bpp)
 	@cat $^ >$@
 
+$(TYPESGFXDIR)/move_types_icons.4bpp: $(types:%=$(TYPESGFXDIR)/%_icon.4bpp)
+	@cat $^ >$@
+
 $(TYPESGFXDIR)/move_types.gbapal: $(TYPESGFXDIR)/move_types_1.gbapal \
-                                  $(TYPESGFXDIR)/move_types_2.gbapal \
-                                  $(TYPESGFXDIR)/move_types_3.gbapal
+                                  $(TYPESGFXDIR)/move_types_2.gbapal
 	@cat $^ >$@
 
 graphics/bag/menu.4bpp: %.4bpp: %.png
