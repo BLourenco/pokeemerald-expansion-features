@@ -951,32 +951,32 @@ static const struct SpriteTemplate sSpriteTemplate_MoveTypes =
     .affineAnims = gDummySpriteAffineAnimTable,
     .callback = SpriteCallbackDummy
 };
-static const u8 sMoveTypeToOamPaletteNum[NUMBER_OF_MON_TYPES + CONTEST_CATEGORIES_COUNT] =
+const u8 gMoveTypeToOamPaletteNum[NUMBER_OF_MON_TYPES + CONTEST_CATEGORIES_COUNT] =
 {
-    [TYPE_NORMAL] = 13,
-    [TYPE_FIGHTING] = 13,
-    [TYPE_FLYING] = 13,
-    [TYPE_POISON] = 14,
-    [TYPE_GROUND] = 14,
-    [TYPE_ROCK] = 14,
-    [TYPE_BUG] = 13,
-    [TYPE_GHOST] = 14,
-    [TYPE_STEEL] = 13,
-    [TYPE_MYSTERY] = 13,
-    [TYPE_FIRE] = 14,
-    [TYPE_WATER] = 13,
-    [TYPE_GRASS] = 13,
-    [TYPE_ELECTRIC] = 14,
-    [TYPE_PSYCHIC] = 14,
-    [TYPE_ICE] = 13,
-    [TYPE_DRAGON] = 14,
-    [TYPE_DARK] = 13,
-    [TYPE_FAIRY] = 14,
-    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_COOL] = 14,
-    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_BEAUTY] = 13,
-    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_CUTE] = 14,
-    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_SMART] = 13,
-    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_TOUGH] = 14,
+    [TYPE_NORMAL] = 14,
+    [TYPE_FIGHTING] = 14,
+    [TYPE_FLYING] = 14,
+    [TYPE_POISON] = 15,
+    [TYPE_GROUND] = 15,
+    [TYPE_ROCK] = 15,
+    [TYPE_BUG] = 14,
+    [TYPE_GHOST] = 15,
+    [TYPE_STEEL] = 14,
+    [TYPE_MYSTERY] = 14,
+    [TYPE_FIRE] = 15,
+    [TYPE_WATER] = 14,
+    [TYPE_GRASS] = 14,
+    [TYPE_ELECTRIC] = 15,
+    [TYPE_PSYCHIC] = 15,
+    [TYPE_ICE] = 14,
+    [TYPE_DRAGON] = 15,
+    [TYPE_DARK] = 14,
+    [TYPE_FAIRY] = 15,
+    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_COOL] = 15,
+    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_BEAUTY] = 14,
+    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_CUTE] = 15,
+    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_SMART] = 14,
+    [NUMBER_OF_MON_TYPES + CONTEST_CATEGORY_TOUGH] = 15,
 };
 static const struct OamData sOamData_MoveSelector =
 {
@@ -1442,7 +1442,7 @@ static bool8 DecompressGraphics(void)
         sMonSummaryScreen->switchCounter++;
         break;
     case 12:
-        LoadCompressedPalette(gMoveTypes_Pal, OBJ_PLTT_ID(13), 2 * PLTT_SIZE_4BPP);
+        LoadCompressedPalette(gMoveTypes_Pal, OBJ_PLTT_ID(14), 2 * PLTT_SIZE_4BPP);
         LoadCompressedSpriteSheet(&sSpriteSheet_SplitIcons);
         LoadSpritePalette(&sSpritePal_SplitIcons);
         sMonSummaryScreen->switchCounter = 0;
@@ -3887,7 +3887,7 @@ static void SetTypeSpritePosAndPal(u8 typeId, u8 x, u8 y, u8 spriteArrayId)
 {
     struct Sprite *sprite = &gSprites[sMonSummaryScreen->spriteIds[spriteArrayId]];
     StartSpriteAnim(sprite, typeId);
-    sprite->oam.paletteNum = sMoveTypeToOamPaletteNum[typeId];
+    sprite->oam.paletteNum = gMoveTypeToOamPaletteNum[typeId];
     sprite->x = x + 16;
     sprite->y = y + 8;
     SetSpriteInvisibility(spriteArrayId, FALSE);
