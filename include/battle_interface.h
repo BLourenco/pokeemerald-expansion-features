@@ -59,6 +59,26 @@ enum
 #define TAG_ALPHA_OMEGA_INDICATOR_PAL   0xD779 // Alpha and Omega indicators use the same palette as each of them only uses 4 different colors.
 #define TAG_ZMOVE_TRIGGER_PAL           0xD77B
 
+#define TAG_NORMAL_TYPE_SYMBOL_TILE     0xD77C
+#define TAG_FIGHTING_TYPE_SYMBOL_TILE   0xD77D
+#define TAG_FLYING_TYPE_SYMBOL_TILE     0xD77E
+#define TAG_POISON_TYPE_SYMBOL_TILE     0xD77F
+#define TAG_GROUND_TYPE_SYMBOL_TILE     0xD780
+#define TAG_ROCK_TYPE_SYMBOL_TILE       0xD781
+#define TAG_BUG_TYPE_SYMBOL_TILE        0xD782
+#define TAG_GHOST_TYPE_SYMBOL_TILE      0xD783
+#define TAG_STEEL_TYPE_SYMBOL_TILE      0xD784
+#define TAG_MYSTERY_TYPE_SYMBOL_TILE    0xD785
+#define TAG_FIRE_TYPE_SYMBOL_TILE       0xD786
+#define TAG_WATER_TYPE_SYMBOL_TILE      0xD787
+#define TAG_GRASS_TYPE_SYMBOL_TILE      0xD788
+#define TAG_ELECTRIC_TYPE_SYMBOL_TILE   0xD789
+#define TAG_PSYCHIC_TYPE_SYMBOL_TILE    0xD78A
+#define TAG_ICE_TYPE_SYMBOL_TILE        0xD78B
+#define TAG_DRAGON_TYPE_SYMBOL_TILE     0xD78C
+#define TAG_DARK_TYPE_SYMBOL_TILE       0xD78D
+#define TAG_FAIRY_TYPE_SYMBOL_TILE      0xD78E
+
 enum
 {
     HEALTHBOX_ALL,
@@ -68,7 +88,7 @@ enum
     HEALTHBOX_NICK,
     HEALTHBOX_HEALTH_BAR,
     HEALTHBOX_EXP_BAR,
-    HEALTHBOX_UNUSED_7,
+    HEALTHBOX_TYPE,
     HEALTHBOX_UNUSED_8,
     HEALTHBOX_STATUS_ICON,
     HEALTHBOX_SAFARI_ALL_TEXT,
@@ -93,6 +113,7 @@ bool32 IsMegaTriggerSpriteActive(void);
 void HideMegaTriggerSprite(void);
 void DestroyMegaTriggerSprite(void);
 void MegaIndicator_LoadSpritesGfx(void);
+void TypeSymbols_LoadSpritesGfx(void);
 u8 CreatePartyStatusSummarySprites(u8 battler, struct HpAndStatus *partyInfo, bool8 skipPlayer, bool8 isBattleStart);
 void Task_HidePartyStatusSummary(u8 taskId);
 void UpdateHealthboxAttribute(u8 healthboxSpriteId, struct Pokemon *mon, u8 elementId);

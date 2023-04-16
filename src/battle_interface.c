@@ -189,6 +189,10 @@ static void MegaIndicator_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
 static void MegaIndicator_DestroySprites(u32 healthboxSpriteId);
 static void SpriteCb_MegaIndicator(struct Sprite *);
 
+static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId);
+static void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible);
+static void SpriteCb_TypeSymbols(struct Sprite *);
+
 static u8 GetStatusIconForBattlerId(u8, u8);
 static s32 CalcNewBarValue(s32, s32, s32, s32 *, u8, u16);
 static u8 GetScaledExpFraction(s32, s32, s32, u8);
@@ -665,6 +669,137 @@ static const struct SpriteTemplate sSpriteTemplate_MegaTrigger =
     .callback = SpriteCb_MegaTrigger
 };
 
+static const struct OamData sOamData_MoveTypeSymbols =
+{
+    .y = 0,
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .mosaic = FALSE,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(8x8),
+    .x = 0,
+    .matrixNum = 0,
+    .size = SPRITE_SIZE(8x8),
+    .tileNum = 0,
+    .priority = 1,
+    .paletteNum = 0,
+    .affineParam = 0,
+};
+static const union AnimCmd sSpriteAnim_TypeNormalSymbol[] = {
+    ANIMCMD_FRAME(TYPE_NORMAL * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeFightingSymbol[] = {
+    ANIMCMD_FRAME(TYPE_FIGHTING * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeFlyingSymbol[] = {
+    ANIMCMD_FRAME(TYPE_FLYING * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypePoisonSymbol[] = {
+    ANIMCMD_FRAME(TYPE_POISON * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeGroundSymbol[] = {
+    ANIMCMD_FRAME(TYPE_GROUND * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeRockSymbol[] = {
+    ANIMCMD_FRAME(TYPE_ROCK * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeBugSymbol[] = {
+    ANIMCMD_FRAME(TYPE_BUG * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeGhostSymbol[] = {
+    ANIMCMD_FRAME(TYPE_GHOST * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeSteelSymbol[] = {
+    ANIMCMD_FRAME(TYPE_STEEL * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeMysterySymbol[] = {
+    ANIMCMD_FRAME(TYPE_MYSTERY * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeFireSymbol[] = {
+    ANIMCMD_FRAME(TYPE_FIRE * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeWaterSymbol[] = {
+    ANIMCMD_FRAME(TYPE_WATER * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeGrassSymbol[] = {
+    ANIMCMD_FRAME(TYPE_GRASS * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeElectricSymbol[] = {
+    ANIMCMD_FRAME(TYPE_ELECTRIC * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypePsychicSymbol[] = {
+    ANIMCMD_FRAME(TYPE_PSYCHIC * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeIceSymbol[] = {
+    ANIMCMD_FRAME(TYPE_ICE * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeDragonSymbol[] = {
+    ANIMCMD_FRAME(TYPE_DRAGON * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeDarkSymbol[] = {
+    ANIMCMD_FRAME(TYPE_DARK * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd sSpriteAnim_TypeFairySymbol[] = {
+    ANIMCMD_FRAME(TYPE_FAIRY * 1, 0, FALSE, FALSE),
+    ANIMCMD_END
+};
+static const union AnimCmd *const sSpriteAnimTable_MoveTypeSymbols[NUMBER_OF_MON_TYPES] = {
+    sSpriteAnim_TypeNormalSymbol,
+    sSpriteAnim_TypeFightingSymbol,
+    sSpriteAnim_TypeFlyingSymbol,
+    sSpriteAnim_TypePoisonSymbol,
+    sSpriteAnim_TypeGroundSymbol,
+    sSpriteAnim_TypeRockSymbol,
+    sSpriteAnim_TypeBugSymbol,
+    sSpriteAnim_TypeGhostSymbol,
+    sSpriteAnim_TypeSteelSymbol,
+    sSpriteAnim_TypeMysterySymbol,
+    sSpriteAnim_TypeFireSymbol,
+    sSpriteAnim_TypeWaterSymbol,
+    sSpriteAnim_TypeGrassSymbol,
+    sSpriteAnim_TypeElectricSymbol,
+    sSpriteAnim_TypePsychicSymbol,
+    sSpriteAnim_TypeIceSymbol,
+    sSpriteAnim_TypeDragonSymbol,
+    sSpriteAnim_TypeDarkSymbol,
+    sSpriteAnim_TypeFairySymbol,
+};
+
+static const struct CompressedSpriteSheet sSpriteSheet_MoveTypeSymbols =
+{
+    .data = gMoveTypeSymbols_Gfx,
+    .size = (NUMBER_OF_MON_TYPES) * 32,
+    .tag = 30002
+};
+static const struct SpriteTemplate sSpriteTemplate_MoveTypeSymbols =
+{
+    .tileTag = 30002,
+    .paletteTag = 30002,
+    .oam = &sOamData_MoveTypeSymbols,
+    .anims = sSpriteAnimTable_MoveTypeSymbols,
+    .images = NULL,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCb_TypeSymbols
+};
+
 // Because the healthbox is too large to fit into one sprite, it is divided into two sprites.
 // healthboxLeft  or healthboxMain  is the left part that is used as the 'main' sprite.
 // healthboxRight or healthboxOther is the right part of the healthbox.
@@ -781,6 +916,9 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
     healthBarSpritePtr->hBar_HealthBoxSpriteId = healthboxLeftSpriteId;
     healthBarSpritePtr->hBar_Data6 = data6;
     healthBarSpritePtr->invisible = TRUE;
+    
+    // Create type symbol sprites.
+    TypeSymbols_CreateSprites(battlerId, healthboxLeftSpriteId);
 
     // Create mega indicator sprites.
     MegaIndicator_CreateSprites(battlerId, healthboxLeftSpriteId);
@@ -868,6 +1006,7 @@ void SetHealthboxSpriteInvisible(u8 healthboxSpriteId)
     gSprites[gSprites[healthboxSpriteId].hMain_HealthBarSpriteId].invisible = TRUE;
     gSprites[gSprites[healthboxSpriteId].oam.affineParam].invisible = TRUE;
     MegaIndicator_SetVisibilities(healthboxSpriteId, TRUE);
+    TypeSymbols_SetVisibilities(healthboxSpriteId, TRUE);
 }
 
 void SetHealthboxSpriteVisible(u8 healthboxSpriteId)
@@ -876,6 +1015,7 @@ void SetHealthboxSpriteVisible(u8 healthboxSpriteId)
     gSprites[gSprites[healthboxSpriteId].hMain_HealthBarSpriteId].invisible = FALSE;
     gSprites[gSprites[healthboxSpriteId].oam.affineParam].invisible = FALSE;
     MegaIndicator_SetVisibilities(healthboxSpriteId, FALSE);
+    TypeSymbols_SetVisibilities(healthboxSpriteId, FALSE);
 }
 
 static void UpdateSpritePos(u8 spriteId, s16 x, s16 y)
@@ -910,6 +1050,7 @@ static void TryToggleHealboxVisibility(u32 priority, u32 healthboxLeftSpriteId, 
     gSprites[healthboxRightSpriteId].invisible = invisible;
     gSprites[healthbarSpriteId].invisible = invisible;
     MegaIndicator_SetVisibilities(healthboxLeftSpriteId, invisible);
+    TypeSymbols_SetVisibilities(healthboxLeftSpriteId, invisible);
 }
 
 void UpdateOamPriorityInAllHealthboxes(u8 priority, bool32 hideHPBoxes)
@@ -1433,6 +1574,12 @@ void DestroyMegaTriggerSprite(void)
 #undef tBattler
 #undef tHide
 
+// for sprite data fields
+#define tBattler        data[0]
+#define tType           data[1] // Indicator type: mega, alpha, omega
+#define tPosX           data[2]
+#define tLevelXDelta    data[3] // X position depends whether level has 3, 2 or 1 digit
+
 // Code for Mega Evolution (And Alpha/Omega) Trigger icon visible on the battler's healthbox.
 enum
 {
@@ -1496,11 +1643,176 @@ static const s8 sIndicatorPositions[][2] =
     [B_POSITION_OPPONENT_RIGHT] = {-5, -9},
 };
 
-// for sprite data fields
-#define tBattler        data[0]
-#define tType           data[1] // Indicator type: mega, alpha, omega
-#define tPosX           data[2]
-#define tLevelXDelta    data[3] // X position depends whether level has 3, 2 or 1 digit
+static const s8 sTypeSymbolsPositions[][2] =
+{
+    [B_POSITION_PLAYER_LEFT] = {-18, 13},
+    [B_POSITION_OPPONENT_LEFT] = {78, 13},
+    [B_POSITION_PLAYER_RIGHT] = {-18, 13},
+    [B_POSITION_OPPONENT_RIGHT] = {78, 13},
+};
+
+static u8 *TypeSymbols_GetSpriteIds(u32 healthboxSpriteId)
+{
+    u8 *spriteIds = (u8 *)(&gSprites[gSprites[healthboxSpriteId].oam.affineParam].data[3]);
+    return spriteIds;
+}
+
+void TypeSymbols_LoadSpritesGfx(void)
+{
+    LoadCompressedSpriteSheet(&sSpriteSheet_MoveTypeSymbols);
+    LoadCompressedPalette(gMoveTypes_Pal, OBJ_PLTT_ID(14), 2 * PLTT_SIZE_4BPP);
+}
+
+static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId)
+{
+    u32 position, i;
+    u8 *spriteIds;
+    s16 xHealthbox = 0, y = 0;
+    s32 x = 0;
+
+    position = GetBattlerPosition(battlerId);
+    GetBattlerHealthboxCoords(battlerId, &xHealthbox, &y);
+
+    x = sTypeSymbolsPositions[position][0];
+    y += sTypeSymbolsPositions[position][1];
+
+    spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
+    for (i = 0; i < 3; i++)
+    {
+        struct SpriteTemplate sprTemplate = sSpriteTemplate_MoveTypeSymbols;
+        // sprTemplate.tileTag = sMegaIndicatorTags[i][0];
+        // sprTemplate.paletteTag = sMegaIndicatorTags[i][1];
+        spriteIds[i] = CreateSpriteAtEnd(&sprTemplate, 0, y, 0);
+        // gSprites[spriteIds[i]].tType = i;
+        gSprites[spriteIds[i]].tBattler = battlerId;
+        gSprites[spriteIds[i]].tPosX = x;
+        gSprites[spriteIds[i]].invisible = TRUE;        
+    }
+}
+
+static void SetTypeSymbolSpriteAndPal(u8 battlerId, u32 healthboxSpriteId)
+{    
+    u8 i;
+    u8 battlerTypes[3] = {gBattleMons[battlerId].type1, gBattleMons[battlerId].type2, gBattleMons[battlerId].type3};
+    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
+    struct Sprite *sprite;
+
+    for (i = 0; i < 3; i++)
+    {
+        sprite = &gSprites[spriteIds[i]];
+        StartSpriteAnim(sprite, battlerTypes[i]);
+        sprite->oam.paletteNum = gMoveTypeToOamPaletteNum[battlerTypes[i]];
+    }    
+}
+
+static void SetTypeSymbolPos(u32 battlerId, u32 healthboxSpriteId, u8 x, u8 y)
+{
+    s8 i, cursor = 0, lastType = TYPE_NONE;
+    u8 symbolOffset = 9; // 8px width, plus 1px spacing
+    struct Sprite *sprite;
+
+    u8 battlerTypes[3] = {gBattleMons[battlerId].type1, gBattleMons[battlerId].type2, gBattleMons[battlerId].type3};
+    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
+
+    // if (GetBattlerSide(battlerId) == B_SIDE_OPPONENT)
+    //     x = x - (symbolOffset * (typeCount-1));
+    
+    // for (i = 0; i < 3; i++)
+    // {
+    //     sprite = &gSprites[spriteIds[i]];
+    //     sprite->x = x + (symbolOffset * i);
+    //     sprite->y = y;
+    // }
+
+    if (GetBattlerSide(battlerId) == B_SIDE_OPPONENT)
+    {
+        for (i = 2; i >= 0; i--)
+        {
+            if (i == 0 ||
+                (battlerTypes[i] != TYPE_MYSTERY 
+                && battlerTypes[i] != battlerTypes[0]))
+            {
+                sprite = &gSprites[spriteIds[i]];
+                sprite->x = x - (symbolOffset * cursor++);
+                sprite->y = y;
+            }
+            lastType = battlerTypes[i];
+        }
+    }
+    else
+    {
+        for (i = 0; i < 3; i++)
+        {
+            if (battlerTypes[i] != TYPE_MYSTERY && battlerTypes[i] != lastType)
+            {
+                sprite = &gSprites[spriteIds[i]];
+                sprite->x = x + (symbolOffset * cursor++);
+                sprite->y = y;
+                lastType = battlerTypes[i];
+            }
+        }
+    }
+}
+
+static void UpdateTypeSymbols(u32 battlerId, u32 healthboxSpriteId)
+{    
+    u16 x, y;    
+    u16 position = GetBattlerPosition(battlerId);
+
+    x = gSprites[gHealthboxSpriteIds[battlerId]].x + sTypeSymbolsPositions[position][0];
+    y = gSprites[gHealthboxSpriteIds[battlerId]].y + sTypeSymbolsPositions[position][1];
+
+    SetTypeSymbolPos(battlerId, healthboxSpriteId, x, y);
+    SetTypeSymbolSpriteAndPal(battlerId, healthboxSpriteId);
+}
+
+static bool8 TypeSymbols_ShouldBeInvisible(u32 healthboxId, u8 typeSlot)
+{
+    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxId); 
+    u32 battlerId = gSprites[healthboxId].hMain_Battler;
+    u8 battlerTypes[3] = {gBattleMons[battlerId].type1, gBattleMons[battlerId].type2, gBattleMons[battlerId].type3};
+
+    // CAN'T DO YET, MONS MARKED AS SEEN AT START OF BATTLE
+    // If Pokemon unseen, hide types
+    // if (GetBattlerSide(battlerId) == B_SIDE_OPPONENT &&
+    //     !GetSetPokedexFlag(SpeciesToNationalPokedexNum(gBattleMons[battlerId].species), FLAG_GET_SEEN))
+    //     return TRUE;
+
+    switch(typeSlot)
+    {
+        case 0:
+            return FALSE;
+        case 1:
+            return battlerTypes[1] == TYPE_MYSTERY || battlerTypes[0] == battlerTypes[1];
+        case 2:
+            return battlerTypes[2] == TYPE_MYSTERY;
+    }
+}
+
+void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible)
+{
+    u32 i;
+    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxId);
+    u32 battlerId = gSprites[healthboxId].hMain_Battler;
+
+    for (i = 0; i < 3; i++)
+    {
+        if (invisible == TRUE)
+            gSprites[spriteIds[i]].invisible = TRUE;
+        else // Try visible.
+            gSprites[spriteIds[i]].invisible = TypeSymbols_ShouldBeInvisible(healthboxId, i);
+    }
+
+    UpdateTypeSymbols(battlerId, healthboxId);
+}
+
+static void SpriteCb_TypeSymbols(struct Sprite *sprite)
+{
+    u32 battlerId = sprite->tBattler;
+
+    sprite->x2 = gSprites[gHealthboxSpriteIds[battlerId]].x2;
+    sprite->y2 = gSprites[gHealthboxSpriteIds[battlerId]].y2;
+}
 
 void MegaIndicator_LoadSpritesGfx(void)
 {
@@ -2383,6 +2695,8 @@ void UpdateHealthboxAttribute(u8 healthboxSpriteId, struct Pokemon *mon, u8 elem
             UpdateSafariBallsTextOnHealthbox(healthboxSpriteId);
         if (elementId == HEALTHBOX_SAFARI_ALL_TEXT || elementId == HEALTHBOX_SAFARI_BALLS_TEXT)
             UpdateLeftNoOfBallsTextOnHealthbox(healthboxSpriteId);
+        if (elementId == HEALTHBOX_TYPE || elementId == HEALTHBOX_ALL)
+            UpdateTypeSymbols(battlerId, healthboxSpriteId);
     }
     else
     {
@@ -2407,6 +2721,8 @@ void UpdateHealthboxAttribute(u8 healthboxSpriteId, struct Pokemon *mon, u8 elem
             UpdateNickInHealthbox(healthboxSpriteId, mon);
         if (elementId == HEALTHBOX_STATUS_ICON || elementId == HEALTHBOX_ALL)
             UpdateStatusIconInHealthbox(healthboxSpriteId);
+        if (elementId == HEALTHBOX_TYPE || elementId == HEALTHBOX_ALL)
+            UpdateTypeSymbols(battlerId, healthboxSpriteId);
     }
 }
 

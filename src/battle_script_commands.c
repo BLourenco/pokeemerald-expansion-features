@@ -9879,6 +9879,7 @@ static void Cmd_various(void)
         {
             SET_BATTLER_TYPE(gBattlerTarget, gBattleMoves[gCurrentMove].type);
             PREPARE_TYPE_BUFFER(gBattleTextBuff1, gBattleMoves[gCurrentMove].type);
+            UpdateHealthboxAttribute(gHealthboxSpriteIds[gBattlerTarget], mon, HEALTHBOX_TYPE);
             gBattlescriptCurrInstr = cmd->nextInstr;
         }
         return;
