@@ -191,6 +191,7 @@ static void SpriteCb_MegaIndicator(struct Sprite *);
 
 static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId);
 static void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible);
+static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
 static void SpriteCb_TypeSymbols(struct Sprite *);
 
 static u8 GetStatusIconForBattlerId(u8, u8);
@@ -1067,6 +1068,7 @@ void UpdateOamPriorityInAllHealthboxes(u8 priority, bool32 hideHPBoxes)
         gSprites[healthboxRightSpriteId].oam.priority = priority;
         gSprites[healthbarSpriteId].oam.priority = priority;
 
+        TypeSymbols_UpdateOamPriorities(healthboxLeftSpriteId, priority);
         MegaIndicator_UpdateOamPriorities(healthboxLeftSpriteId, priority);
 
     #if B_HIDE_HEALTHBOX_IN_ANIMS
@@ -1804,6 +1806,14 @@ void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible)
     }
 
     UpdateTypeSymbols(battlerId, healthboxId);
+}
+
+static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority)
+{
+    u32 i;
+    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxId);
+    for (i = 0; i < 3; i++)
+        gSprites[spriteIds[i]].oam.priority = oamPriority;
 }
 
 static void SpriteCb_TypeSymbols(struct Sprite *sprite)
