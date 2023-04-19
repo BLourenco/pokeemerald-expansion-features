@@ -2725,6 +2725,11 @@ static void SpriteCB_WildMonShowHealthbox(struct Sprite *sprite)
     {
         StartHealthboxSlideIn(sprite->sBattler);
         SetHealthboxSpriteVisible(gHealthboxSpriteIds[sprite->sBattler]);
+        
+        // Wild battles don't initialize battler data until after the wild mon's 
+        // healthbox sprites are created and set, so update the type sprites now.
+        UpdateTypeSymbols(sprite->sBattler, gHealthboxSpriteIds[sprite->sBattler]);
+
         sprite->callback = SpriteCB_WildMonAnimate;
         StartSpriteAnimIfDifferent(sprite, 0);
         if (WILD_DOUBLE_BATTLE)

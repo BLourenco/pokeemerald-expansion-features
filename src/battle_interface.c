@@ -193,6 +193,7 @@ static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId);
 static void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible);
 static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
 static void SpriteCb_TypeSymbols(struct Sprite *);
+void UpdateTypeSymbols(u32 battlerId, u32 healthboxSpriteId);
 
 static u8 GetStatusIconForBattlerId(u8, u8);
 static s32 CalcNewBarValue(s32, s32, s32, s32 *, u8, u16);
@@ -1704,71 +1705,63 @@ static void SetTypeSymbolSpriteAndPal(u8 battlerId, u32 healthboxSpriteId)
         sprite = &gSprites[spriteIds[i]];
         StartSpriteAnim(sprite, battlerTypes[i]);
         sprite->oam.paletteNum = gMoveTypeToOamPaletteNum[battlerTypes[i]];
-    }    
+    }
 }
 
-static void SetTypeSymbolPos(u32 battlerId, u32 healthboxSpriteId, u8 x, u8 y)
+static void SetTypeSymbolPos(u32 battlerId, u32 healthboxSpriteId)
 {
     s8 i, cursor = 0, lastType = TYPE_NONE;
+    u16 x, y;
     u8 symbolOffset = 9; // 8px width, plus 1px spacing
     struct Sprite *sprite;
-
-    u8 battlerTypes[3] = {gBattleMons[battlerId].type1, gBattleMons[battlerId].type2, gBattleMons[battlerId].type3};
-    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
-
-    // if (GetBattlerSide(battlerId) == B_SIDE_OPPONENT)
-    //     x = x - (symbolOffset * (typeCount-1));
     
-    // for (i = 0; i < 3; i++)
-    // {
-    //     sprite = &gSprites[spriteIds[i]];
-    //     sprite->x = x + (symbolOffset * i);
-    //     sprite->y = y;
-    // }
+    u16 position = GetBattlerPosition(battlerId);
+    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
+    u8 battlerTypes[3] = {gBattleMons[battlerId].type1, gBattleMons[battlerId].type2, gBattleMons[battlerId].type3};
+
+    x = gSprites[gHealthboxSpriteIds[battlerId]].x + sTypeSymbolsPositions[position][0];
+    y = gSprites[gHealthboxSpriteIds[battlerId]].y + sTypeSymbolsPositions[position][1];
 
     if (GetBattlerSide(battlerId) == B_SIDE_OPPONENT)
     {
         for (i = 2; i >= 0; i--)
-        {
-            if (i == 0 ||
-                (battlerTypes[i] != TYPE_MYSTERY 
-                && battlerTypes[i] != battlerTypes[0]))
+        {            
+            sprite = &gSprites[spriteIds[i]];
+            sprite->x = x;
+            sprite->y = y;
+
+            if ((i == 0 && cursor == 0) // Last index and haven't positioned any symbols
+                || (battlerTypes[i] != TYPE_MYSTERY /*&& battlerTypes[i] != lastType*/))
             {
-                sprite = &gSprites[spriteIds[i]];
+                // Moves cursor back for pure types, fixes an issue with the visibility
+                // making type1 visible, but using type2 for positioning
+                if (battlerTypes[i] == lastType)
+                    cursor--;
+
                 sprite->x = x - (symbolOffset * cursor++);
-                sprite->y = y;
+                lastType = battlerTypes[i];
             }
-            lastType = battlerTypes[i];
         }
     }
     else
     {
         for (i = 0; i < 3; i++)
         {
-            if (battlerTypes[i] != TYPE_MYSTERY && battlerTypes[i] != lastType)
+            sprite = &gSprites[spriteIds[i]];
+            sprite->x = x;
+            sprite->y = y;
+
+            if ((i == 2 && cursor == 0) // Last index and haven't positioned any symbols
+                || (battlerTypes[i] != TYPE_MYSTERY && battlerTypes[i] != lastType))
             {
-                sprite = &gSprites[spriteIds[i]];
                 sprite->x = x + (symbolOffset * cursor++);
-                sprite->y = y;
                 lastType = battlerTypes[i];
             }
         }
     }
 }
 
-static void UpdateTypeSymbols(u32 battlerId, u32 healthboxSpriteId)
-{    
-    u16 x, y;    
-    u16 position = GetBattlerPosition(battlerId);
-
-    x = gSprites[gHealthboxSpriteIds[battlerId]].x + sTypeSymbolsPositions[position][0];
-    y = gSprites[gHealthboxSpriteIds[battlerId]].y + sTypeSymbolsPositions[position][1];
-
-    SetTypeSymbolPos(battlerId, healthboxSpriteId, x, y);
-    SetTypeSymbolSpriteAndPal(battlerId, healthboxSpriteId);
-}
-
-static bool8 TypeSymbols_ShouldBeInvisible(u32 healthboxId, u8 typeSlot)
+static void TypeSymbols_ShouldBeInvisible(u32 healthboxId, u8 typeSlot)
 {
     u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxId); 
     u32 battlerId = gSprites[healthboxId].hMain_Battler;
@@ -1783,11 +1776,11 @@ static bool8 TypeSymbols_ShouldBeInvisible(u32 healthboxId, u8 typeSlot)
     switch(typeSlot)
     {
         case 0:
-            return FALSE;
+            gSprites[spriteIds[0]].invisible = battlerTypes[0] == TYPE_MYSTERY && (battlerTypes[1] != TYPE_MYSTERY || battlerTypes[2] != TYPE_MYSTERY);
         case 1:
-            return battlerTypes[1] == TYPE_MYSTERY || battlerTypes[0] == battlerTypes[1];
+            gSprites[spriteIds[1]].invisible = battlerTypes[1] == TYPE_MYSTERY || battlerTypes[0] == battlerTypes[1];
         case 2:
-            return battlerTypes[2] == TYPE_MYSTERY;
+            gSprites[spriteIds[2]].invisible = battlerTypes[2] == TYPE_MYSTERY;
     }
 }
 
@@ -1802,10 +1795,11 @@ void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible)
         if (invisible == TRUE)
             gSprites[spriteIds[i]].invisible = TRUE;
         else // Try visible.
-            gSprites[spriteIds[i]].invisible = TypeSymbols_ShouldBeInvisible(healthboxId, i);
+            TypeSymbols_ShouldBeInvisible(healthboxId, i);
     }
 
-    UpdateTypeSymbols(battlerId, healthboxId);
+    // SetTypeSymbolPos(battlerId, healthboxId);
+    // SetTypeSymbolSpriteAndPal(battlerId, healthboxId);
 }
 
 static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority)
@@ -1814,6 +1808,17 @@ static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority)
     u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxId);
     for (i = 0; i < 3; i++)
         gSprites[spriteIds[i]].oam.priority = oamPriority;
+}
+
+void UpdateTypeSymbols(u32 battlerId, u32 healthboxSpriteId)
+{  
+    DebugPrintf("Battler %d: Updating symbols...", battlerId);
+    SetTypeSymbolPos(battlerId, healthboxSpriteId);
+    SetTypeSymbolSpriteAndPal(battlerId, healthboxSpriteId);    
+    //TypeSymbols_SetVisibilities(healthboxSpriteId, FALSE);
+    TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 0);
+    TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 1);
+    TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 2);
 }
 
 static void SpriteCb_TypeSymbols(struct Sprite *sprite)
@@ -2658,6 +2663,43 @@ void UpdateHealthboxAttribute(u8 healthboxSpriteId, struct Pokemon *mon, u8 elem
     u32 battlerId = gSprites[healthboxSpriteId].hMain_Battler;
     s32 maxHp = GetMonData(mon, MON_DATA_MAX_HP);
     s32 currHp = GetMonData(mon, MON_DATA_HP);
+
+    // switch (elementId)
+    // {
+    //     case HEALTHBOX_ALL:
+    //         DebugPrintf("Battler %d: HEALTHBOX_ALL--------------", battlerId);
+    //         break;
+    //     case HEALTHBOX_CURRENT_HP:
+    //         DebugPrintf("Battler %d: HEALTHBOX_CURRENT_HP", battlerId);
+    //         break;
+    //     case HEALTHBOX_MAX_HP:
+    //         DebugPrintf("Battler %d: HEALTHBOX_MAX_HP", battlerId);
+    //         break;
+    //     case HEALTHBOX_NICK:
+    //         DebugPrintf("Battler %d: HEALTHBOX_NICK", battlerId);
+    //         break;
+    //     case HEALTHBOX_LEVEL:
+    //         DebugPrintf("Battler %d: HEALTHBOX_LEVEL", battlerId);
+    //         break;
+    //     case HEALTHBOX_HEALTH_BAR:
+    //         DebugPrintf("Battler %d: HEALTHBOX_HEALTH_BAR", battlerId);
+    //         break;
+    //     case HEALTHBOX_EXP_BAR:
+    //         DebugPrintf("Battler %d: HEALTHBOX_EXP_BAR", battlerId);
+    //         break;
+    //     case HEALTHBOX_TYPE:
+    //         DebugPrintf("Battler %d: HEALTHBOX_TYPE-------------", battlerId);
+    //         break;
+    //     case HEALTHBOX_STATUS_ICON:
+    //         DebugPrintf("Battler %d: HEALTHBOX_STATUS_ICON", battlerId);
+    //         break;
+    //     case HEALTHBOX_SAFARI_ALL_TEXT:
+    //         DebugPrintf("Battler %d: HEALTHBOX_SAFARI_ALL_TEXT", battlerId);
+    //         break;
+    //     case HEALTHBOX_SAFARI_BALLS_TEXT:
+    //         DebugPrintf("Battler %d: HEALTHBOX_SAFARI_BALLS_TEXT", battlerId);
+    //         break;
+    // }
 
     if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
     {
