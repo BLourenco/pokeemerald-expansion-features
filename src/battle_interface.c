@@ -1797,9 +1797,6 @@ void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible)
         else // Try visible.
             TypeSymbols_ShouldBeInvisible(healthboxId, i);
     }
-
-    // SetTypeSymbolPos(battlerId, healthboxId);
-    // SetTypeSymbolSpriteAndPal(battlerId, healthboxId);
 }
 
 static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority)
@@ -1814,8 +1811,7 @@ void UpdateTypeSymbols(u32 battlerId, u32 healthboxSpriteId)
 {  
     DebugPrintf("Battler %d: Updating symbols...", battlerId);
     SetTypeSymbolPos(battlerId, healthboxSpriteId);
-    SetTypeSymbolSpriteAndPal(battlerId, healthboxSpriteId);    
-    //TypeSymbols_SetVisibilities(healthboxSpriteId, FALSE);
+    SetTypeSymbolSpriteAndPal(battlerId, healthboxSpriteId);
     TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 0);
     TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 1);
     TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 2);

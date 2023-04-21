@@ -3140,6 +3140,7 @@ u8 DoBattlerEndTurnEffects(void)
                 gBattleResources->flags->flags[gActiveBattler] &= ~RESOURCE_FLAG_ROOST;
                 gBattleMons[gActiveBattler].type1 = gBattleStruct->roostTypes[gActiveBattler][0];
                 gBattleMons[gActiveBattler].type2 = gBattleStruct->roostTypes[gActiveBattler][1];
+                UpdateHealthboxAttribute(gHealthboxSpriteIds[gActiveBattler], NULL, HEALTHBOX_TYPE);
             }
             gBattleStruct->turnEffectsTracker++;
             break;

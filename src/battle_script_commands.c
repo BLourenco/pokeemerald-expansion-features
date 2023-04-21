@@ -9879,7 +9879,6 @@ static void Cmd_various(void)
         {
             SET_BATTLER_TYPE(gBattlerTarget, gBattleMoves[gCurrentMove].type);
             PREPARE_TYPE_BUFFER(gBattleTextBuff1, gBattleMoves[gCurrentMove].type);
-            UpdateHealthboxAttribute(gHealthboxSpriteIds[gBattlerTarget], mon, HEALTHBOX_TYPE);
             gBattlescriptCurrInstr = cmd->nextInstr;
         }
         return;
@@ -11224,6 +11223,16 @@ static void Cmd_various(void)
         gBattleStruct->hitSwitchTargetFailed = TRUE;
         gBattlescriptCurrInstr = cmd->nextInstr;
         return;
+    }
+    case VARIOUS_UPDATE_HEALTHBOX_TYPES:
+    {
+        VARIOUS_ARGS();
+        if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER)
+            mon = &gPlayerParty[gBattlerPartyIndexes[gActiveBattler]];
+        else
+            mon = &gEnemyParty[gBattlerPartyIndexes[gActiveBattler]];
+        UpdateHealthboxAttribute(gHealthboxSpriteIds[gActiveBattler], mon, HEALTHBOX_TYPE);
+        break;
     }
     } // End of switch (cmd->id)
 

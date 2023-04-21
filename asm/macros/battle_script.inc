@@ -2263,3 +2263,7 @@
 	.macro hitswitchtargetfailed
 	various 0, VARIOUS_HIT_SWITCH_TARGET_FAILED
 	.endm
+
+	.macro updatehealthboxtypes battler:req
+	various \battler, VARIOUS_UPDATE_HEALTHBOX_TYPES
+	.endm

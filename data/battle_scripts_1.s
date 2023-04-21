@@ -1430,6 +1430,7 @@ BattleScript_BurnUpWorks:
 
 BattleScript_BurnUpRemoveType::
 	losetype BS_ATTACKER, TYPE_FIRE
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_ATTACKERLOSTFIRETYPE
 	waitmessage B_WAIT_TIME_LONG
 	return
@@ -1447,6 +1448,7 @@ BattleScript_DoubleShockWorks:
 
 BattleScript_DoubleShockRemoveType::
 	losetype BS_ATTACKER, TYPE_ELECTRIC
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_ATTACKERLOSTELECTRICTYPE
 	waitmessage B_WAIT_TIME_LONG
 	return
@@ -1808,6 +1810,7 @@ BattleScript_EffectThirdType:
 	trysetthirdtype BS_TARGET, BattleScript_ButItFailed
 	attackanimation
 	waitanimation
+	updatehealthboxtypes BS_TARGET
 	printstring STRINGID_THIRDTYPEADDED
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
@@ -2378,6 +2381,7 @@ BattleScript_EffectSoak:
 	attackanimation
 	waitanimation
 	trysoak BattleScript_ButItFailed
+	updatehealthboxtypes BS_TARGET
 	printstring STRINGID_TARGETCHANGEDTYPE
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
@@ -2390,6 +2394,7 @@ BattleScript_EffectReflectType:
 	tryreflecttype BattleScript_ButItFailed
 	attackanimation
 	waitanimation
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_REFLECTTARGETSTYPE
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
@@ -3832,6 +3837,7 @@ BattleScript_EffectConversion::
 	tryconversiontypechange BattleScript_ButItFailed
 	attackanimation
 	waitanimation
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_PKMNCHANGEDTYPE
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
@@ -4177,6 +4183,7 @@ BattleScript_EffectTransform::
 	transformdataexecution
 	attackanimation
 	waitanimation
+	updatehealthboxtypes BS_SCRIPTING
 	printfromtable gTransformUsedStringIds
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
@@ -4621,6 +4628,7 @@ BattleScript_EffectConversion2::
 	settypetorandomresistance BattleScript_ButItFailed
 	attackanimation
 	waitanimation
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_PKMNCHANGEDTYPE
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
@@ -5508,6 +5516,7 @@ BattleScript_PresentHealTarget::
 	attackanimation
 	waitanimation
 	orword gHitMarker, HITMARKER_IGNORE_SUBSTITUTE
+	updatehealthboxtypes BS_TARGET
 	healthbarupdate BS_TARGET
 	datahpupdate BS_TARGET
 	printstring STRINGID_PKMNREGAINEDHEALTH
@@ -6357,6 +6366,7 @@ BattleScript_EffectCamouflage::
 	settypetoterrain BattleScript_ButItFailed
 	attackanimation
 	waitanimation
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_PKMNCHANGEDTYPE
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
@@ -7911,6 +7921,7 @@ BattleScript_AttackerFormChangeNoPopup::
 	playanimation BS_ATTACKER, B_ANIM_FORM_CHANGE
 	waitanimation
 	handleformchange BS_ATTACKER, 2
+	updatehealthboxtypes BS_ATTACKER
 	return
 
 BattleScript_AttackerFormChangeEnd3::
@@ -7927,6 +7938,7 @@ BattleScript_AttackerFormChangeMoveEffect::
 	playanimation BS_ATTACKER, B_ANIM_FORM_CHANGE
 	waitanimation
 	copybyte sBATTLER, gBattlerAttacker
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_PKMNTRANSFORMED
 	waitmessage B_WAIT_TIME_LONG
 	handleformchange BS_ATTACKER, 2
@@ -7959,6 +7971,7 @@ BattleScript_TargetFormChange::
 	playanimation BS_TARGET, B_ANIM_FORM_CHANGE
 	waitanimation
 	handleformchange BS_TARGET, 2
+	updatehealthboxtypes BS_TARGET
 	return
 
 BattleScript_TargetFormChangeWithString::
@@ -7971,6 +7984,7 @@ BattleScript_TargetFormChangeWithString::
 	playanimation BS_TARGET, B_ANIM_FORM_CHANGE, NULL
 	waitanimation
 	handleformchange BS_TARGET, 2
+	updatehealthboxtypes BS_TARGET
 	printstring STRINGID_PKMNTRANSFORMED
 	waitmessage B_WAIT_TIME_LONG
 	return
@@ -7985,6 +7999,7 @@ BattleScript_BattlerFormChangeWithStringEnd3::
 	playanimation BS_SCRIPTING, B_ANIM_FORM_CHANGE, NULL
 	waitanimation
 	handleformchange BS_SCRIPTING, 2
+	updatehealthboxtypes BS_SCRIPTING
 	printstring STRINGID_PKMNTRANSFORMED
 	waitmessage B_WAIT_TIME_LONG
 	end3
@@ -8623,6 +8638,7 @@ BattleScript_DoWeatherFormChange_PopUp:
 BattleScript_DoWeatherFormChange_AfterPopUp:
 	doweatherformchangeanimation
 	waitstate
+	updatehealthboxtypes BS_SCRIPTING
 	printstring STRINGID_PKMNTRANSFORMED
 	waitmessage B_WAIT_TIME_LONG
 	return
@@ -8815,6 +8831,7 @@ BattleScript_AttackWeakenedByStrongWinds::
 BattleScript_MimicryActivates_End3::
 	pause B_WAIT_TIME_SHORT
 	call BattleScript_AbilityPopUp
+	updatehealthboxtypes BS_SCRIPTING
 	printstring STRINGID_BATTLERTYPECHANGEDTO
 	waitmessage B_WAIT_TIME_SHORT
 	end3
@@ -9143,6 +9160,7 @@ BattleScript_StickyHoldActivates::
 
 BattleScript_ColorChangeActivates::
 	call BattleScript_AbilityPopUp
+	updatehealthboxtypes BS_SCRIPTING
 	printstring STRINGID_PKMNCHANGEDTYPEWITH
 	waitmessage B_WAIT_TIME_LONG
 	return
@@ -9150,6 +9168,7 @@ BattleScript_ColorChangeActivates::
 BattleScript_ProteanActivates::
 	pause B_WAIT_TIME_SHORTEST
 	call BattleScript_AbilityPopUp
+	updatehealthboxtypes BS_SCRIPTING
 	printstring STRINGID_PKMNCHANGEDTYPE
 	waitmessage B_WAIT_TIME_LONG
 	return
@@ -9335,6 +9354,7 @@ BattleScript_ImposterActivates::
 	call BattleScript_AbilityPopUp
 	playmoveanimation BS_ATTACKER, MOVE_TRANSFORM
 	waitanimation
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_IMPOSTERTRANSFORM
 	waitmessage B_WAIT_TIME_LONG
 	end3
@@ -9422,6 +9442,7 @@ BattleScript_BattleBondActivatesOnMoveEndAttacker::
 	playanimation BS_ATTACKER, B_ANIM_FORM_CHANGE
 	waitanimation
 	handleformchange BS_ATTACKER, 2
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_ATTACKERBECAMEASHSPECIES
 	return
 
