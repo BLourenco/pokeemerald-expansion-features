@@ -1048,6 +1048,7 @@ static void TryToggleHealboxVisibility(u32 priority, u32 healthboxLeftSpriteId, 
     else if (priority == 1) // end of anim -> make visible
         invisible = FALSE;
 
+    TypeSymbols_ReloadPalette(); // Fix any palettes overwritten by attack anim palettes. (ex. Relic Song)
     gSprites[healthboxLeftSpriteId].invisible = invisible;
     gSprites[healthboxRightSpriteId].invisible = invisible;
     gSprites[healthbarSpriteId].invisible = invisible;
@@ -1663,6 +1664,13 @@ static u8 *TypeSymbols_GetSpriteIds(u32 healthboxSpriteId)
 void TypeSymbols_LoadSpritesGfx(void)
 {
     LoadCompressedSpriteSheet(&sSpriteSheet_MoveTypeSymbols);
+    LoadCompressedPalette(gMoveTypes_Pal, OBJ_PLTT_ID(14), 2 * PLTT_SIZE_4BPP);
+}
+
+// Some attack animations overwrite the type palettes when used.
+// This is called after the animation ends to restore the palettes.
+void TypeSymbols_ReloadPalette(void)
+{
     LoadCompressedPalette(gMoveTypes_Pal, OBJ_PLTT_ID(14), 2 * PLTT_SIZE_4BPP);
 }
 
