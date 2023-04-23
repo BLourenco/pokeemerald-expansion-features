@@ -192,6 +192,7 @@ static void SpriteCb_MegaIndicator(struct Sprite *);
 static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId);
 static void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible);
 static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
+static void TypeSymbols_DestroySprites(u32 healthboxSpriteId);
 static void SpriteCb_TypeSymbols(struct Sprite *);
 void UpdateTypeSymbols(u32 battlerId, u32 healthboxSpriteId);
 
@@ -1028,6 +1029,7 @@ static void UpdateSpritePos(u8 spriteId, s16 x, s16 y)
 
 void DestoryHealthboxSprite(u8 healthboxSpriteId)
 {
+    TypeSymbols_DestroySprites(healthboxSpriteId);
     MegaIndicator_DestroySprites(healthboxSpriteId);
     DestroySprite(&gSprites[gSprites[healthboxSpriteId].oam.affineParam]);
     DestroySprite(&gSprites[gSprites[healthboxSpriteId].hMain_HealthBarSpriteId]);
@@ -1831,6 +1833,15 @@ static void SpriteCb_TypeSymbols(struct Sprite *sprite)
 
     sprite->x2 = gSprites[gHealthboxSpriteIds[battlerId]].x2;
     sprite->y2 = gSprites[gHealthboxSpriteIds[battlerId]].y2;
+}
+
+static void TypeSymbols_DestroySprites(u32 healthboxSpriteId)
+{
+    u32 i;
+    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
+
+    for (i = 0; i < INDICATOR_COUNT; i++)
+        DestroySprite(&gSprites[spriteIds[i]]);
 }
 
 void MegaIndicator_LoadSpritesGfx(void)
