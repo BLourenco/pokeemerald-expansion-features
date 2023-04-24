@@ -1651,10 +1651,10 @@ static const s8 sIndicatorPositions[][2] =
 
 static const s8 sTypeSymbolsPositions[][2] =
 {
-    [B_POSITION_PLAYER_LEFT] = {-18, 6},
-    [B_POSITION_OPPONENT_LEFT] = {77, 6},
-    [B_POSITION_PLAYER_RIGHT] = {-18, 6},
-    [B_POSITION_OPPONENT_RIGHT] = {77, 6},
+    [B_POSITION_PLAYER_LEFT] = {-17, 6},
+    [B_POSITION_OPPONENT_LEFT] = {76, 6},
+    [B_POSITION_PLAYER_RIGHT] = {-17, 6},
+    [B_POSITION_OPPONENT_RIGHT] = {76, 6},
 };
 
 static u8 *TypeSymbols_GetSpriteIds(u32 healthboxSpriteId)
