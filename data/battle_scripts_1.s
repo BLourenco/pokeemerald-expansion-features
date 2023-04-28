@@ -4183,7 +4183,7 @@ BattleScript_EffectTransform::
 	transformdataexecution
 	attackanimation
 	waitanimation
-	updatehealthboxtypes BS_SCRIPTING
+	updatehealthboxtypes BS_ATTACKER
 	printfromtable gTransformUsedStringIds
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
@@ -8638,6 +8638,7 @@ BattleScript_DoWeatherFormChange_PopUp:
 BattleScript_DoWeatherFormChange_AfterPopUp:
 	doweatherformchangeanimation
 	waitstate
+	updatehealthboxtypes BS_ATTACKER
 	updatehealthboxtypes BS_SCRIPTING
 	printstring STRINGID_PKMNTRANSFORMED
 	waitmessage B_WAIT_TIME_LONG
@@ -9168,7 +9169,7 @@ BattleScript_ColorChangeActivates::
 BattleScript_ProteanActivates::
 	pause B_WAIT_TIME_SHORTEST
 	call BattleScript_AbilityPopUp
-	updatehealthboxtypes BS_SCRIPTING
+	updatehealthboxtypes BS_ATTACKER
 	printstring STRINGID_PKMNCHANGEDTYPE
 	waitmessage B_WAIT_TIME_LONG
 	return
