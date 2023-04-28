@@ -186,13 +186,11 @@ static void MegaIndicator_SetVisibilities(u32 healthboxId, bool32 invisible);
 static void MegaIndicator_UpdateLevel(u32 healthboxId, u32 level);
 static void MegaIndicator_CreateSprites(u32 battlerId, u32 healthboxSpriteId);
 static void MegaIndicator_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
-static void MegaIndicator_DestroySprites(u32 healthboxSpriteId);
 static void SpriteCb_MegaIndicator(struct Sprite *);
 
 static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId);
 static void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible);
 static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
-static void TypeSymbols_DestroySprites(u32 healthboxSpriteId);
 static void SpriteCb_TypeSymbols(struct Sprite *);
 void UpdateTypeSymbols(u32 battlerId, u32 healthboxSpriteId);
 
@@ -829,11 +827,16 @@ static void InitLastUsedBallAssets(void)
 }
 
 // This function is here to cover a specific case - one player's mon in a 2 vs 1 double battle. In this scenario - display singles layout.
+// The same goes for a 2 vs 1 where opponent has only one pokemon.
 u32 WhichBattleCoords(u32 battlerId) // 0 - singles, 1 - doubles
 {
     if (GetBattlerPosition(battlerId) == B_POSITION_PLAYER_LEFT
         && gPlayerPartyCount == 1
         && !(gBattleTypeFlags & BATTLE_TYPE_MULTI))
+        return 0;
+    else if (GetBattlerPosition(battlerId) == B_POSITION_OPPONENT_LEFT
+             && gEnemyPartyCount == 1
+             && !(gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS))
         return 0;
     else
         return IsDoubleBattle();
@@ -1025,15 +1028,6 @@ static void UpdateSpritePos(u8 spriteId, s16 x, s16 y)
 {
     gSprites[spriteId].x = x;
     gSprites[spriteId].y = y;
-}
-
-void DestoryHealthboxSprite(u8 healthboxSpriteId)
-{
-    TypeSymbols_DestroySprites(healthboxSpriteId);
-    MegaIndicator_DestroySprites(healthboxSpriteId);
-    DestroySprite(&gSprites[gSprites[healthboxSpriteId].oam.affineParam]);
-    DestroySprite(&gSprites[gSprites[healthboxSpriteId].hMain_HealthBarSpriteId]);
-    DestroySprite(&gSprites[healthboxSpriteId]);
 }
 
 void DummyBattleInterfaceFunc(u8 healthboxSpriteId, bool8 isDoubleBattleBattlerOnly)
@@ -1865,15 +1859,6 @@ static void SpriteCb_TypeSymbols(struct Sprite *sprite)
     sprite->y2 = gSprites[gHealthboxSpriteIds[battlerId]].y2;
 }
 
-static void TypeSymbols_DestroySprites(u32 healthboxSpriteId)
-{
-    u32 i;
-    u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
-
-    for (i = 0; i < INDICATOR_COUNT; i++)
-        DestroySprite(&gSprites[spriteIds[i]]);
-}
-
 void MegaIndicator_LoadSpritesGfx(void)
 {
     LoadSpriteSheets(sMegaIndicator_SpriteSheets);
@@ -1917,6 +1902,9 @@ void MegaIndicator_SetVisibilities(u32 healthboxId, bool32 invisible)
     u32 i;
     u8 *spriteIds = MegaIndicator_GetSpriteIds(healthboxId);
     u32 battlerId = gSprites[healthboxId].hMain_Battler;
+
+    if (GetSafariZoneFlag())
+        return;
 
     for (i = 0; i < INDICATOR_COUNT; i++)
     {
@@ -1975,15 +1963,6 @@ static void MegaIndicator_CreateSprites(u32 battlerId, u32 healthboxSpriteId)
         gSprites[spriteIds[i]].tPosX = x;
         gSprites[spriteIds[i]].invisible = TRUE;
     }
-}
-
-static void MegaIndicator_DestroySprites(u32 healthboxSpriteId)
-{
-    u32 i;
-    u8 *spriteIds = MegaIndicator_GetSpriteIds(healthboxSpriteId);
-
-    for (i = 0; i < INDICATOR_COUNT; i++)
-        DestroySprite(&gSprites[spriteIds[i]]);
 }
 
 static void SpriteCb_MegaIndicator(struct Sprite *sprite)
