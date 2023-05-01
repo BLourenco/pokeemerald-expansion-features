@@ -8029,7 +8029,7 @@ BattleScript_IllusionOff::
 	spriteignore0hp TRUE
 	playanimation BS_TARGET, B_ANIM_ILLUSION_OFF
 	waitanimation
-	updatenick BS_TARGET
+	updatehealthbox BS_TARGET
 	waitstate
 	spriteignore0hp FALSE
 	printstring STRINGID_ILLUSIONWOREOFF

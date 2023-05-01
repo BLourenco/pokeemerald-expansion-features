@@ -2293,6 +2293,10 @@
 	.4byte \jumpInstr
 	.endm
 
+	.macro updatehealthbox battler:req
+	various \battler, VARIOUS_UPDATE_HEALTHBOX
+	.endm
+
 	.macro updatehealthboxtypes battler:req
 	various \battler, VARIOUS_UPDATE_HEALTHBOX_TYPES
 	.endm

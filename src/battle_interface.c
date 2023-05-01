@@ -1127,6 +1127,12 @@ static void UpdateLvlInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     u8 appendPoint;
 
     lvl = GetMonData(mon, MON_DATA_LEVEL);
+
+     // Use gender of illusion mon
+    struct Pokemon *illusionMon = GetIllusionMonPtr(gSprites[healthboxSpriteId].hMain_Battler);
+    if (illusionMon != NULL)
+        mon = illusionMon; 
+
     gender = GetMonGender(mon);
 
     switch (gender)
@@ -1727,10 +1733,36 @@ static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId)
     }
 }
 
+static bool8 UseIllusionType(u8 battlerId)
+{
+    return  GetBattlerSide(battlerId) == B_SIDE_OPPONENT
+            && gBattleStruct->illusion[battlerId].on;
+}
+
+static u8 * GetDisplayedTypes(u8 battlerId)
+{
+    static u8 battlerTypes[3];
+
+    if (UseIllusionType(battlerId))
+    {
+        battlerTypes[0] = gSpeciesInfo[GetIllusionMonSpecies(battlerId)].types[0];
+        battlerTypes[1] = gSpeciesInfo[GetIllusionMonSpecies(battlerId)].types[1];
+        battlerTypes[2] = gBattleMons[battlerId].type3;
+    }
+    else
+    {
+        battlerTypes[0] = gBattleMons[battlerId].type1;
+        battlerTypes[1] = gBattleMons[battlerId].type2;
+        battlerTypes[2] = gBattleMons[battlerId].type3;
+    }
+
+    return battlerTypes;
+}
+
 static void SetTypeSymbolSpriteAndPal(u8 battlerId, u32 healthboxSpriteId)
 {    
     u8 i;
-    u8 battlerTypes[3] = {gBattleMons[battlerId].type1, gBattleMons[battlerId].type2, gBattleMons[battlerId].type3};
+    u8 *battlerTypes = GetDisplayedTypes(battlerId);
     u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
     struct Sprite *sprite;
 
@@ -1748,10 +1780,10 @@ static void SetTypeSymbolPos(u32 battlerId, u32 healthboxSpriteId)
     u16 x, y;
     u8 symbolOffset = 9; // 8px width, plus 1px spacing
     struct Sprite *sprite;
+    u8 *battlerTypes = GetDisplayedTypes(battlerId);
     
     u16 position = GetBattlerPosition(battlerId);
     u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
-    u8 battlerTypes[3] = {gBattleMons[battlerId].type1, gBattleMons[battlerId].type2, gBattleMons[battlerId].type3};
 
     x = gSprites[gHealthboxSpriteIds[battlerId]].x + sTypeSymbolsPositions[position][0];
     y = gSprites[gHealthboxSpriteIds[battlerId]].y + sTypeSymbolsPositions[position][1];
@@ -1799,7 +1831,7 @@ static void TypeSymbols_ShouldBeInvisible(u32 healthboxId, u8 typeSlot)
 {
     u8 *spriteIds = TypeSymbols_GetSpriteIds(healthboxId); 
     u32 battlerId = gSprites[healthboxId].hMain_Battler;
-    u8 battlerTypes[3] = {gBattleMons[battlerId].type1, gBattleMons[battlerId].type2, gBattleMons[battlerId].type3};
+    u8 *battlerTypes = GetDisplayedTypes(battlerId);
 
     // CAN'T DO YET, MONS MARKED AS SEEN AT START OF BATTLE
     // If Pokemon unseen, hide types
@@ -2454,9 +2486,10 @@ static void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     u32 windowId, spriteTileNum, species;
     u8 *windowTileData;
     u8 gender;
+    
     struct Pokemon *illusionMon = GetIllusionMonPtr(gSprites[healthboxSpriteId].hMain_Battler);
     if (illusionMon != NULL)
-        mon = illusionMon;
+        mon = illusionMon;        
 
     GetMonData(mon, MON_DATA_NICKNAME, nickname);
     ptr = StringAppend(gDisplayedStringBattle, nickname);

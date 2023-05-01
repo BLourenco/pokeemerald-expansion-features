@@ -11255,6 +11255,16 @@ static void Cmd_various(void)
         gBattlescriptCurrInstr = cmd->nextInstr;
         return;
     }
+    case VARIOUS_UPDATE_HEALTHBOX:
+    {
+        VARIOUS_ARGS();
+        if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER)
+            mon = &gPlayerParty[gBattlerPartyIndexes[gActiveBattler]];
+        else
+            mon = &gEnemyParty[gBattlerPartyIndexes[gActiveBattler]];
+        UpdateHealthboxAttribute(gHealthboxSpriteIds[gActiveBattler], mon, HEALTHBOX_ALL);
+        break;
+    }
     case VARIOUS_UPDATE_HEALTHBOX_TYPES:
     {
         VARIOUS_ARGS();
