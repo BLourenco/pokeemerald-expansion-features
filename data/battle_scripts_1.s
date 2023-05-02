@@ -6958,6 +6958,9 @@ BattleScript_TerrainEnds_Ret::
 	printfromtable gTerrainEndingStringIds
 	waitmessage B_WAIT_TIME_LONG
 	playanimation BS_ATTACKER, B_ANIM_RESTORE_BG
+	waitanimation
+@ Update types UI for Mimicry when terrain ends
+	updatehealthboxtypesall
 	return
 
 BattleScript_GrassyTerrainEnds:

@@ -11275,6 +11275,14 @@ static void Cmd_various(void)
         UpdateHealthboxAttribute(gHealthboxSpriteIds[gActiveBattler], mon, HEALTHBOX_TYPE);
         break;
     }
+    case VARIOUS_UPDATE_HEALTHBOX_TYPES_ALL:
+    {
+        u32 i;
+        VARIOUS_ARGS();
+        for (i = 0; i < gBattlersCount; i++)
+            UpdateHealthboxAttribute(gHealthboxSpriteIds[i], NULL, HEALTHBOX_TYPE);
+        break;
+    }
     case VARIOUS_JUMP_IF_SHELL_TRAP:
     {
         VARIOUS_ARGS(const u8 *jumpInstr);

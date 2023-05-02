@@ -2300,3 +2300,7 @@
 	.macro updatehealthboxtypes battler:req
 	various \battler, VARIOUS_UPDATE_HEALTHBOX_TYPES
 	.endm
+
+	.macro updatehealthboxtypesall
+	various 0, VARIOUS_UPDATE_HEALTHBOX_TYPES
+	.endm

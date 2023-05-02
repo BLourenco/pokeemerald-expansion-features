@@ -264,6 +264,7 @@
 #define VARIOUS_TRY_TRAINER_SLIDE_MSG_MEGA_EVOLUTION 172
 #define VARIOUS_UPDATE_HEALTHBOX                     173
 #define VARIOUS_UPDATE_HEALTHBOX_TYPES               174
+#define VARIOUS_UPDATE_HEALTHBOX_TYPES_ALL           175
 
 // Cmd_manipulatedamage
 #define DMG_CHANGE_SIGN            0
