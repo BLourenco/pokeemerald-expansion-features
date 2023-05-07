@@ -269,6 +269,28 @@ static const struct SpriteTemplate sHealthboxOpponentSpriteTemplates[2] =
     }
 };
 
+static const struct SpriteTemplate sHealthboxPartnerSpriteTemplates[2] =
+{
+    {
+        .tileTag = TAG_HEALTHBOX_PARTNER1_TILE,
+        .paletteTag = TAG_HEALTHBOX_PAL,
+        .oam = &sOamData_64x32,
+        .anims = gDummySpriteAnimTable,
+        .images = NULL,
+        .affineAnims = gDummySpriteAffineAnimTable,
+        .callback = SpriteCallbackDummy
+    },
+    {
+        .tileTag = TAG_HEALTHBOX_PARTNER2_TILE,
+        .paletteTag = TAG_HEALTHBOX_PAL,
+        .oam = &sOamData_64x32,
+        .anims = gDummySpriteAnimTable,
+        .images = NULL,
+        .affineAnims = gDummySpriteAffineAnimTable,
+        .callback = SpriteCallbackDummy
+    }
+};
+
 static const struct SpriteTemplate sHealthboxSafariSpriteTemplate =
 {
     .tileTag = TAG_HEALTHBOX_SAFARI_TILE,
@@ -877,9 +899,23 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
         gSprites[healthboxRightSpriteId].hOther_HealthBoxSpriteId = healthboxLeftSpriteId;
         gSprites[healthboxRightSpriteId].callback = SpriteCB_HealthBoxOther;
     }
-    else
+    else // Doubles / Multi
     {
-        if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
+        if (gBattleTypeFlags & BATTLE_TYPE_MULTI
+            && GetBattlerPosition(battlerId) == 2)
+        {
+            healthboxLeftSpriteId = CreateSprite(&sHealthboxPartnerSpriteTemplates[GetBattlerPosition(battlerId) / 2], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
+            healthboxRightSpriteId = CreateSpriteAtEnd(&sHealthboxPartnerSpriteTemplates[GetBattlerPosition(battlerId) / 2], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
+
+            gSprites[healthboxLeftSpriteId].oam.affineParam = healthboxRightSpriteId;
+
+            gSprites[healthboxRightSpriteId].hOther_HealthBoxSpriteId = healthboxLeftSpriteId;
+            gSprites[healthboxRightSpriteId].oam.tileNum += 32;
+            gSprites[healthboxRightSpriteId].callback = SpriteCB_HealthBoxOther;
+
+            data6 = 1;
+        }
+        else if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
         {
             healthboxLeftSpriteId = CreateSprite(&sHealthboxPlayerSpriteTemplates[GetBattlerPosition(battlerId) / 2], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
             healthboxRightSpriteId = CreateSpriteAtEnd(&sHealthboxPlayerSpriteTemplates[GetBattlerPosition(battlerId) / 2], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);

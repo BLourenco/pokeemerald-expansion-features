@@ -62,6 +62,12 @@ static const struct CompressedSpriteSheet sSpriteSheets_DoublesOpponentHealthbox
     {gHealthboxDoublesOpponentGfx, 0x800, TAG_HEALTHBOX_OPPONENT2_TILE}
 };
 
+static const struct CompressedSpriteSheet sSpriteSheets_DoublesPartnerHealthbox[2] =
+{
+    {gHealthboxDoublesPartnerGfx, 0x800, TAG_HEALTHBOX_PARTNER1_TILE},
+    {gHealthboxDoublesPartnerGfx, 0x800, TAG_HEALTHBOX_PARTNER2_TILE}
+};
+
 static const struct CompressedSpriteSheet sSpriteSheet_SafariHealthbox =
 {
     gHealthboxSafariGfx, 0x1000, TAG_HEALTHBOX_SAFARI_TILE
@@ -712,7 +718,28 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
             else
                 retVal = TRUE;
         }
-        else
+        else if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
+        {
+            if (state == 2)
+                LoadCompressedSpriteSheet(&sSpriteSheets_DoublesPlayerHealthbox[0]);
+            else if (state == 3)
+                LoadCompressedSpriteSheet(&sSpriteSheets_DoublesPartnerHealthbox[1]);
+            else if (state == 4)
+                LoadCompressedSpriteSheet(&sSpriteSheets_DoublesOpponentHealthbox[0]);
+            else if (state == 5)
+                LoadCompressedSpriteSheet(&sSpriteSheets_DoublesOpponentHealthbox[1]);
+            else if (state == 6)
+                LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[0]]);
+            else if (state == 7)
+                LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[1]]);
+            else if (state == 8)
+                LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[2]]);
+            else if (state == 9)
+                LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[3]]);
+            else
+                retVal = TRUE;
+        }
+        else // Doubles or 2v1
         {
             if (state == 2)
             {
