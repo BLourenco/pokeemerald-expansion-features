@@ -1370,7 +1370,7 @@ static void UpdateHpTextInHealthboxInDoubles(u32 healthboxSpriteId, u32 maxOrCur
     {
         if (gBattleSpritesDataPtr->battlerData[gSprites[healthboxSpriteId].data[6]].hpNumbersNoBars) // don't print text if only bars are visible
         {
-            PrintHpOnHealthbar(barSpriteId, currHp, maxHp, 0, 4, FONT_SMALL_OUTLINED, 2, 5, 0, 0x80, 0x20); // Colors use HP Bar Palette
+            PrintHpOnHealthbar(barSpriteId, currHp, maxHp, 0, 4, FONT_SMALL, 2, 5, 0, 0x80, 0x20); // Colors use HP Bar Palette
             // Clears the end of the healthbar gfx.
             // CpuCopy32(GetHealthboxElementGfxPtr(HEALTHBOX_GFX_FRAME_END),
             //               (void *)(OBJ_VRAM0 + 0x680) + (gSprites[healthboxSpriteId].oam.tileNum * TILE_SIZE_4BPP),
@@ -1663,11 +1663,11 @@ enum
     INDICATOR_COUNT,
 };
 
-static const u8 ALIGNED(4) sMegaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/mega_indicator.4bpp");
-static const u16 sMegaIndicatorPal[] = INCBIN_U16("graphics/battle_interface/mega_indicator.gbapal");
-static const u8 ALIGNED(4) sAlphaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/alpha_indicator.4bpp");
-static const u8 ALIGNED(4) sOmegaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/omega_indicator.4bpp");
-static const u16 sAlphaOmegaIndicatorPal[] = INCBIN_U16("graphics/battle_interface/alpha_indicator.gbapal");
+static const u8 ALIGNED(4) sMegaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/indicator_mega.4bpp");
+static const u16 sIndicatorPal[] = INCBIN_U16("graphics/battle_interface/indicators.gbapal");
+static const u8 ALIGNED(4) sAlphaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/indicator_alpha.4bpp");
+static const u8 ALIGNED(4) sOmegaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/indicator_omega.4bpp");
+//static const u16 sAlphaOmegaIndicatorPal[] = INCBIN_U16("graphics/battle_interface/indicators.gbapal");
 
 static const struct SpriteSheet sMegaIndicator_SpriteSheets[] =
 {
@@ -1678,23 +1678,23 @@ static const struct SpriteSheet sMegaIndicator_SpriteSheets[] =
 };
 static const struct SpritePalette sMegaIndicator_SpritePalettes[] =
 {
-    [INDICATOR_MEGA] = {sMegaIndicatorPal, TAG_MEGA_INDICATOR_PAL},
-    [INDICATOR_ALPHA] = {sAlphaOmegaIndicatorPal, TAG_ALPHA_OMEGA_INDICATOR_PAL},
-    [INDICATOR_OMEGA] = {sAlphaOmegaIndicatorPal, TAG_ALPHA_OMEGA_INDICATOR_PAL},
+    [INDICATOR_MEGA] = {sIndicatorPal, TAG_INDICATOR_PAL},
+    [INDICATOR_ALPHA] = {sIndicatorPal, TAG_INDICATOR_PAL},
+    [INDICATOR_OMEGA] = {sIndicatorPal, TAG_INDICATOR_PAL},
     [INDICATOR_COUNT] = {0}
 };
 
 static const struct OamData sOamData_MegaIndicator =
 {
-    .shape = SPRITE_SHAPE(16x16),
-    .size = SPRITE_SIZE(16x16),
+    .shape = SPRITE_SHAPE(8x16),
+    .size = SPRITE_SIZE(8x16),
     .priority = 1,
 };
 
 static const struct SpriteTemplate sSpriteTemplate_MegaIndicator =
 {
     .tileTag = TAG_MEGA_INDICATOR_TILE,
-    .paletteTag = TAG_MEGA_INDICATOR_PAL,
+    .paletteTag = TAG_INDICATOR_PAL,
     .oam = &sOamData_MegaIndicator,
     .anims = gDummySpriteAnimTable,
     .images = NULL,
@@ -1704,17 +1704,17 @@ static const struct SpriteTemplate sSpriteTemplate_MegaIndicator =
 
 static const u16 sMegaIndicatorTags[][2] =
 {
-    [INDICATOR_MEGA] = {TAG_MEGA_INDICATOR_TILE, TAG_MEGA_INDICATOR_PAL},
-    [INDICATOR_ALPHA] = {TAG_ALPHA_INDICATOR_TILE, TAG_ALPHA_OMEGA_INDICATOR_PAL},
-    [INDICATOR_OMEGA] = {TAG_OMEGA_INDICATOR_TILE, TAG_ALPHA_OMEGA_INDICATOR_PAL},
+    [INDICATOR_MEGA] = {TAG_MEGA_INDICATOR_TILE, TAG_INDICATOR_PAL},
+    [INDICATOR_ALPHA] = {TAG_ALPHA_INDICATOR_TILE, TAG_INDICATOR_PAL},
+    [INDICATOR_OMEGA] = {TAG_OMEGA_INDICATOR_TILE, TAG_INDICATOR_PAL},
 };
 
 static const s8 sIndicatorPositions[][2] =
 {
-    [B_POSITION_PLAYER_LEFT] = {-21, -9},
-    [B_POSITION_OPPONENT_LEFT] = {-5, -9},
-    [B_POSITION_PLAYER_RIGHT] = {-21, -9},
-    [B_POSITION_OPPONENT_RIGHT] = {-5, -9},
+    [B_POSITION_PLAYER_LEFT] = {-26, -9},
+    [B_POSITION_OPPONENT_LEFT] = {-10, -9},
+    [B_POSITION_PLAYER_RIGHT] = {-26, -9},
+    [B_POSITION_OPPONENT_RIGHT] = {-10, -9},
 };
 
 static const s8 sTypeSymbolsPositions[][2] =

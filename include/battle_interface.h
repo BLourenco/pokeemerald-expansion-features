@@ -57,8 +57,8 @@ enum
 #define TAG_ZMOVE_TRIGGER_TILE          0xD77B
 
 #define TAG_MEGA_TRIGGER_PAL            0xD777
-#define TAG_MEGA_INDICATOR_PAL          0xD778
-#define TAG_ALPHA_OMEGA_INDICATOR_PAL   0xD779 // Alpha and Omega indicators use the same palette as each of them only uses 4 different colors.
+#define TAG_INDICATOR_PAL               0xD778 // All indicators use the same palette
+//#define TAG_ALPHA_OMEGA_INDICATOR_PAL   0xD779 // OLD: Alpha and Omega indicators use the same palette as each of them only uses 4 different colors.
 #define TAG_ZMOVE_TRIGGER_PAL           0xD77B
 
 #define TAG_NORMAL_TYPE_SYMBOL_TILE     0xD77C
