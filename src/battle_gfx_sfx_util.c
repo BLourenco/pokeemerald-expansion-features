@@ -87,6 +87,29 @@ const struct SpritePalette sSpritePalettes_HealthBoxHealthBar[2] =
     {gBattleInterface_BallDisplayPal, TAG_HEALTHBAR_PAL}
 };
 
+static const struct CompressedSpriteSheet sSpriteSheet_SinglesPlayerIndicator =
+{
+    gBattleInterface_IndicatorsGfxTable, 0x40, TAG_INDICATOR_PLAYER1_TILE
+};
+static const struct CompressedSpriteSheet sSpriteSheet_SinglesOpponentIndicator =
+{
+    gBattleInterface_IndicatorsGfxTable, 0x40, TAG_INDICATOR_OPPONENT1_TILE
+};
+static const struct CompressedSpriteSheet sSpriteSheet_DoublesPlayerIndicators[2] =
+{
+    {gBattleInterface_IndicatorsGfxTable, 0x40, TAG_INDICATOR_PLAYER1_TILE},
+    {gBattleInterface_IndicatorsGfxTable, 0x40, TAG_INDICATOR_PLAYER2_TILE}
+};
+static const struct CompressedSpriteSheet sSpriteSheet_DoublesOpponentIndicators[2] =
+{
+    {gBattleInterface_IndicatorsGfxTable, 0x40, TAG_INDICATOR_OPPONENT1_TILE},
+    {gBattleInterface_IndicatorsGfxTable, 0x40, TAG_INDICATOR_OPPONENT2_TILE}
+};
+static const struct SpritePalette sIndicator_SpritePalette =
+{
+    gBattleInterface_IndicatorsPal, TAG_INDICATOR_PAL
+};
+
 // code
 void AllocateBattleSpritesData(void)
 {
@@ -697,8 +720,8 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
         {
             LoadSpritePalette(&sSpritePalettes_HealthBoxHealthBar[0]);
             LoadSpritePalette(&sSpritePalettes_HealthBoxHealthBar[1]);
+            LoadSpritePalette(&sIndicator_SpritePalette);
             TypeSymbols_LoadSpritesGfx();
-            MegaIndicator_LoadSpritesGfx();
         }
         else if (!IsDoubleBattle())
         {
@@ -715,6 +738,10 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
                 LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[0]]);
             else if (state == 5)
                 LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[1]]);
+            else if (state == 6)
+                LoadCompressedSpriteSheet(&sSpriteSheet_SinglesPlayerIndicator);
+            else if (state == 7)
+                LoadCompressedSpriteSheet(&sSpriteSheet_SinglesOpponentIndicator);
             else
                 retVal = TRUE;
         }
@@ -736,6 +763,14 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
                 LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[2]]);
             else if (state == 9)
                 LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[3]]);
+            else if (state == 10)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesPlayerIndicators[0]);
+            else if (state == 11)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesPlayerIndicators[1]);
+            else if (state == 12)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentIndicators[0]);
+            else if (state == 13)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentIndicators[1]);
             else
                 retVal = TRUE;
         }
@@ -762,6 +797,14 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
                 LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[2]]);
             else if (state == 9)
                 LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[3]]);
+            else if (state == 10)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesPlayerIndicators[0]);
+            else if (state == 11)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesPlayerIndicators[1]);
+            else if (state == 12)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentIndicators[0]);
+            else if (state == 13)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentIndicators[1]);
             else
                 retVal = TRUE;
         }

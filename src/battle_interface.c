@@ -157,7 +157,27 @@ enum
     HEALTHBOX_GFX_FRAME_END_BAR,
 };
 
+enum
+{   // Corresponds to gBattleInterface_IndicatorsGfxTable in graphics.c
+    // These are indexes into the tables, which are filled with 8x8 square pixel data.
+    INDICATOR_GFX_BLANK,
+    INDICATOR_GFX_BLANK_2,
+    INDICATOR_GFX_CAUGHT,
+    INDICATOR_GFX_CAUGHT_2,
+    INDICATOR_GFX_MEGA,
+    INDICATOR_GFX_MEGA_2,
+    INDICATOR_GFX_ALPHA,
+    INDICATOR_GFX_ALPHA_2,
+    INDICATOR_GFX_OMEGA,
+    INDICATOR_GFX_OMEGA_2,
+    INDICATOR_GFX_DYNAMAX,
+    INDICATOR_GFX_DYNAMAX_2,
+    INDICATOR_GFX_TERASTAL,
+    INDICATOR_GFX_TERASTAL_2
+};
+
 static const u8 *GetHealthboxElementGfxPtr(u8);
+static const u8 *GetIndicatorGfxPtr(u8);
 static u8 *AddTextPrinterAndCreateWindowOnHealthbox(const u8 *, u32, u32, u8, u32, u32, u32, u32 *);
 
 static void RemoveWindowOnHealthbox(u32 windowId);
@@ -182,11 +202,10 @@ static void SpriteCB_StatusSummaryBalls_Exit(struct Sprite *);
 static void SpriteCB_StatusSummaryBalls_OnSwitchout(struct Sprite *);
 
 static void SpriteCb_MegaTrigger(struct Sprite *);
-static void MegaIndicator_SetVisibilities(u32 healthboxId, bool32 invisible);
-static void MegaIndicator_UpdateLevel(u32 healthboxId, u32 level);
-static void MegaIndicator_CreateSprites(u32 battlerId, u32 healthboxSpriteId);
-static void MegaIndicator_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
-static void SpriteCb_MegaIndicator(struct Sprite *);
+static void Indicator_SetVisibility(u32 healthboxId, bool32 invisible);
+static void Indicator_CreateSprite(u32 battlerId, u32 healthboxSpriteId);
+static void Indicator_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
+static void SpriteCb_Indicator(struct Sprite *);
 
 static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId);
 static void TypeSymbols_SetVisibilities(u32 healthboxId, bool32 invisible);
@@ -832,7 +851,7 @@ static const struct SpriteTemplate sSpriteTemplate_MoveTypeSymbols =
 
 // data fields for healthboxMain
 // oam.affineParam holds healthboxRight spriteId
-#define hMain_MegaIndicatorIds      data[3] // Mega, Alpha, Omega as u8 in data[3], data[3] + 1, data[4]
+#define hMain_IndicatorId           data[3]
 #define hMain_HealthBarSpriteId     data[5]
 #define hMain_Battler               data[6]
 #define hMain_Data7                 data[7]
@@ -870,7 +889,7 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
 {
     s16 data6 = 0;
     u8 healthboxLeftSpriteId, healthboxRightSpriteId;
-    u8 healthbarSpriteId, megaIndicatorSpriteId;
+    u8 healthbarSpriteId;
     struct Sprite *healthBarSpritePtr;
 
     if (WhichBattleCoords(battlerId) == 0) // Singles
@@ -965,7 +984,7 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
     TypeSymbols_CreateSprites(battlerId, healthboxLeftSpriteId);
 
     // Create mega indicator sprites.
-    MegaIndicator_CreateSprites(battlerId, healthboxLeftSpriteId);
+    Indicator_CreateSprite(battlerId, healthboxLeftSpriteId);
 
     gBattleStruct->ballSpriteIds[0] = MAX_SPRITES;
     gBattleStruct->ballSpriteIds[1] = MAX_SPRITES;
@@ -1049,7 +1068,7 @@ void SetHealthboxSpriteInvisible(u8 healthboxSpriteId)
     gSprites[healthboxSpriteId].invisible = TRUE;
     gSprites[gSprites[healthboxSpriteId].hMain_HealthBarSpriteId].invisible = TRUE;
     gSprites[gSprites[healthboxSpriteId].oam.affineParam].invisible = TRUE;
-    MegaIndicator_SetVisibilities(healthboxSpriteId, TRUE);
+    Indicator_SetVisibility(healthboxSpriteId, TRUE);
     TypeSymbols_SetVisibilities(healthboxSpriteId, TRUE);
 }
 
@@ -1058,7 +1077,7 @@ void SetHealthboxSpriteVisible(u8 healthboxSpriteId)
     gSprites[healthboxSpriteId].invisible = FALSE;
     gSprites[gSprites[healthboxSpriteId].hMain_HealthBarSpriteId].invisible = FALSE;
     gSprites[gSprites[healthboxSpriteId].oam.affineParam].invisible = FALSE;
-    MegaIndicator_SetVisibilities(healthboxSpriteId, FALSE);
+    Indicator_SetVisibility(healthboxSpriteId, FALSE);
     TypeSymbols_SetVisibilities(healthboxSpriteId, FALSE);
 }
 
@@ -1086,7 +1105,7 @@ static void TryToggleHealboxVisibility(u32 priority, u32 healthboxLeftSpriteId, 
     gSprites[healthboxLeftSpriteId].invisible = invisible;
     gSprites[healthboxRightSpriteId].invisible = invisible;
     gSprites[healthbarSpriteId].invisible = invisible;
-    MegaIndicator_SetVisibilities(healthboxLeftSpriteId, invisible);
+    Indicator_SetVisibility(healthboxLeftSpriteId, invisible);
     TypeSymbols_SetVisibilities(healthboxLeftSpriteId, invisible);
 }
 
@@ -1105,7 +1124,7 @@ void UpdateOamPriorityInAllHealthboxes(u8 priority, bool32 hideHPBoxes)
         gSprites[healthbarSpriteId].oam.priority = priority;
 
         TypeSymbols_UpdateOamPriorities(healthboxLeftSpriteId, priority);
-        MegaIndicator_UpdateOamPriorities(healthboxLeftSpriteId, priority);
+        Indicator_UpdateOamPriorities(healthboxLeftSpriteId, priority);
 
     #if B_HIDE_HEALTHBOX_IN_ANIMS
         if (hideHPBoxes && IsBattlerAlive(i))
@@ -1654,59 +1673,66 @@ void DestroyMegaTriggerSprite(void)
 #define tPosX           data[2]
 #define tLevelXDelta    data[3] // X position depends whether level has 3, 2 or 1 digit
 
-// Code for Mega Evolution (And Alpha/Omega) Trigger icon visible on the battler's healthbox.
-enum
-{
-    INDICATOR_MEGA,
-    INDICATOR_ALPHA,
-    INDICATOR_OMEGA,
-    INDICATOR_COUNT,
-};
 
-static const u8 ALIGNED(4) sMegaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/indicator_mega.4bpp");
-static const u16 sIndicatorPal[] = INCBIN_U16("graphics/battle_interface/indicators.gbapal");
-static const u8 ALIGNED(4) sAlphaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/indicator_alpha.4bpp");
-static const u8 ALIGNED(4) sOmegaIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/indicator_omega.4bpp");
-//static const u16 sAlphaOmegaIndicatorPal[] = INCBIN_U16("graphics/battle_interface/indicators.gbapal");
-
-static const struct SpriteSheet sMegaIndicator_SpriteSheets[] =
+static const struct OamData sOamData_Indicator =
 {
-    [INDICATOR_MEGA] = {sMegaIndicatorGfx, sizeof(sMegaIndicatorGfx), TAG_MEGA_INDICATOR_TILE},
-    [INDICATOR_ALPHA] = {sAlphaIndicatorGfx, sizeof(sAlphaIndicatorGfx), TAG_ALPHA_INDICATOR_TILE},
-    [INDICATOR_OMEGA] = {sOmegaIndicatorGfx, sizeof(sOmegaIndicatorGfx), TAG_OMEGA_INDICATOR_TILE},
-    [INDICATOR_COUNT] = {0}
-};
-static const struct SpritePalette sMegaIndicator_SpritePalettes[] =
-{
-    [INDICATOR_MEGA] = {sIndicatorPal, TAG_INDICATOR_PAL},
-    [INDICATOR_ALPHA] = {sIndicatorPal, TAG_INDICATOR_PAL},
-    [INDICATOR_OMEGA] = {sIndicatorPal, TAG_INDICATOR_PAL},
-    [INDICATOR_COUNT] = {0}
-};
-
-static const struct OamData sOamData_MegaIndicator =
-{
+    .y = 0,
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .mosaic = FALSE,
+    .bpp = ST_OAM_4BPP,
     .shape = SPRITE_SHAPE(8x16),
+    .x = 0,
+    .matrixNum = 0,
     .size = SPRITE_SIZE(8x16),
+    .tileNum = 0,
     .priority = 1,
+    .paletteNum = 0,
+    .affineParam = 0,
 };
 
-static const struct SpriteTemplate sSpriteTemplate_MegaIndicator =
+static const struct SpriteTemplate sIndicatorPlayerSpriteTemplates[2] =
 {
-    .tileTag = TAG_MEGA_INDICATOR_TILE,
-    .paletteTag = TAG_INDICATOR_PAL,
-    .oam = &sOamData_MegaIndicator,
-    .anims = gDummySpriteAnimTable,
-    .images = NULL,
-    .affineAnims = gDummySpriteAffineAnimTable,
-    .callback = SpriteCb_MegaIndicator,
+    {
+        .tileTag = TAG_INDICATOR_PLAYER1_TILE,
+        .paletteTag = TAG_INDICATOR_PAL,
+        .oam = &sOamData_Indicator,
+        .anims = gDummySpriteAnimTable,
+        .images = NULL,
+        .affineAnims = gDummySpriteAffineAnimTable,
+        .callback = SpriteCb_Indicator
+    },
+    {
+        .tileTag = TAG_INDICATOR_PLAYER2_TILE,
+        .paletteTag = TAG_INDICATOR_PAL,
+        .oam = &sOamData_Indicator,
+        .anims = gDummySpriteAnimTable,
+        .images = NULL,
+        .affineAnims = gDummySpriteAffineAnimTable,
+        .callback = SpriteCb_Indicator
+    }
 };
 
-static const u16 sMegaIndicatorTags[][2] =
+static const struct SpriteTemplate sIndicatorOpponentSpriteTemplates[2] =
 {
-    [INDICATOR_MEGA] = {TAG_MEGA_INDICATOR_TILE, TAG_INDICATOR_PAL},
-    [INDICATOR_ALPHA] = {TAG_ALPHA_INDICATOR_TILE, TAG_INDICATOR_PAL},
-    [INDICATOR_OMEGA] = {TAG_OMEGA_INDICATOR_TILE, TAG_INDICATOR_PAL},
+    {
+        .tileTag = TAG_INDICATOR_OPPONENT1_TILE,
+        .paletteTag = TAG_INDICATOR_PAL,
+        .oam = &sOamData_Indicator,
+        .anims = gDummySpriteAnimTable,
+        .images = NULL,
+        .affineAnims = gDummySpriteAffineAnimTable,
+        .callback = SpriteCb_Indicator
+    },
+    {
+        .tileTag = TAG_INDICATOR_OPPONENT2_TILE,
+        .paletteTag = TAG_INDICATOR_PAL,
+        .oam = &sOamData_Indicator,
+        .anims = gDummySpriteAnimTable,
+        .images = NULL,
+        .affineAnims = gDummySpriteAffineAnimTable,
+        .callback = SpriteCb_Indicator
+    }
 };
 
 static const s8 sIndicatorPositions[][2] =
@@ -1761,11 +1787,7 @@ static void TypeSymbols_CreateSprites(u32 battlerId, u32 healthboxSpriteId)
     spriteIds = TypeSymbols_GetSpriteIds(healthboxSpriteId);
     for (i = 0; i < 3; i++)
     {
-        struct SpriteTemplate sprTemplate = sSpriteTemplate_MoveTypeSymbols;
-        // sprTemplate.tileTag = sMegaIndicatorTags[i][0];
-        // sprTemplate.paletteTag = sMegaIndicatorTags[i][1];
-        spriteIds[i] = CreateSpriteAtEnd(&sprTemplate, 0, y, 0);
-        // gSprites[spriteIds[i]].tType = i;
+        spriteIds[i] = CreateSpriteAtEnd(&sSpriteTemplate_MoveTypeSymbols, 0, y, 0);
         gSprites[spriteIds[i]].tBattler = battlerId;
         gSprites[spriteIds[i]].tPosX = x;
         gSprites[spriteIds[i]].invisible = TRUE;        
@@ -1914,12 +1936,12 @@ static void TypeSymbols_UpdateOamPriorities(u32 healthboxId, u32 oamPriority)
 
 void UpdateTypeSymbols(u32 battlerId, u32 healthboxSpriteId)
 {  
+    u8 i;
     DebugPrintf("Battler %d: Updating symbols...", battlerId);
     SetTypeSymbolPos(battlerId, healthboxSpriteId);
     SetTypeSymbolSpriteAndPal(battlerId, healthboxSpriteId);
-    TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 0);
-    TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 1);
-    TypeSymbols_ShouldBeInvisible(healthboxSpriteId, 2);
+    for (i = 0; i < 3; i++)
+        TypeSymbols_ShouldBeInvisible(healthboxSpriteId, i);
 }
 
 static void SpriteCb_TypeSymbols(struct Sprite *sprite)
@@ -1930,89 +1952,63 @@ static void SpriteCb_TypeSymbols(struct Sprite *sprite)
     sprite->y2 = gSprites[gHealthboxSpriteIds[battlerId]].y2;
 }
 
-void MegaIndicator_LoadSpritesGfx(void)
+static bool8 Indicator_SetIcon(u32 battlerId, u8 spriteId)
 {
-    LoadSpriteSheets(sMegaIndicator_SpriteSheets);
-    LoadSpritePalettes(sMegaIndicator_SpritePalettes);
-}
-
-static bool32 MegaIndicator_ShouldBeInvisible(u32 battlerId, u32 indicatorType)
-{
+    u8 indicatorGfxId = INDICATOR_GFX_BLANK;
     u32 side = GetBattlerSide(battlerId);
-    if (indicatorType == INDICATOR_MEGA)
+    
+    // Mega/Primals/Dynamax/Tera are prioritized
+    // Caught indicator only shows in wild battle for opponents
+    // Otherwise, no indicator
+
+    if (gBattleStruct->mega.evolvedPartyIds[side] & gBitTable[gBattlerPartyIndexes[battlerId]])
+        indicatorGfxId = INDICATOR_GFX_MEGA;
+    else if (gBattleStruct->mega.primalRevertedPartyIds[side] & gBitTable[gBattlerPartyIndexes[battlerId]])
     {
-        if (gBattleStruct->mega.evolvedPartyIds[side] & gBitTable[gBattlerPartyIndexes[battlerId]])
-            return FALSE;
+        if (gBattleMons[battlerId].species == SPECIES_KYOGRE_PRIMAL)
+            indicatorGfxId = INDICATOR_GFX_ALPHA;
+        else if (gBattleMons[battlerId].species == SPECIES_GROUDON_PRIMAL)
+            indicatorGfxId = INDICATOR_GFX_OMEGA;
     }
-    else
-    {
-        if (indicatorType == INDICATOR_ALPHA)
-        {
-            if (gBattleMons[battlerId].species != SPECIES_KYOGRE_PRIMAL)
-                return TRUE;
-        }
-        else if (indicatorType == INDICATOR_OMEGA)
-        {
-            if (gBattleMons[battlerId].species != SPECIES_GROUDON_PRIMAL)
-                return TRUE;
-        }
-        if (gBattleStruct->mega.primalRevertedPartyIds[side] & gBitTable[gBattlerPartyIndexes[battlerId]])
-            return FALSE;
-    }
-    return TRUE;
+    // else if (DYNAMAX)
+    //     indicatorGfxId = INDICATOR_GFX_DYNAMAX;
+    // else if (TERASTAL)
+    //     indicatorGfxId = INDICATOR_GFX_TERASTAL;
+    else if (GetBattlerSide(battlerId) != B_SIDE_PLAYER
+             && GetSetPokedexFlag(SpeciesToNationalPokedexNum(GetMonData(&gEnemyParty[gBattlerPartyIndexes[battlerId]], MON_DATA_SPECIES)), FLAG_GET_CAUGHT)
+             && !(gBattleTypeFlags & BATTLE_TYPE_WALLY_TUTORIAL)
+             && !(gBattleTypeFlags & BATTLE_TYPE_TRAINER))
+        indicatorGfxId = INDICATOR_GFX_CAUGHT;
+
+    CpuCopy32(GetIndicatorGfxPtr(indicatorGfxId),
+                (void *)(OBJ_VRAM0 + (gSprites[spriteId].oam.tileNum) * TILE_SIZE_4BPP),
+                64);
+    
+    return indicatorGfxId != INDICATOR_GFX_BLANK;
 }
 
-static u8 *MegaIndicator_GetSpriteIds(u32 healthboxSpriteId)
-{
-    u8 *spriteIds = (u8 *)(&gSprites[healthboxSpriteId].hMain_MegaIndicatorIds);
-    return spriteIds;
-}
-
-void MegaIndicator_SetVisibilities(u32 healthboxId, bool32 invisible)
+void Indicator_SetVisibility(u32 healthboxId, bool32 invisible)
 {
     u32 i;
-    u8 *spriteIds = MegaIndicator_GetSpriteIds(healthboxId);
+    u8 spriteId = gSprites[healthboxId].hMain_IndicatorId;
     u32 battlerId = gSprites[healthboxId].hMain_Battler;
 
-    if (GetSafariZoneFlag())
-        return;
-
-    for (i = 0; i < INDICATOR_COUNT; i++)
-    {
-        if (invisible == TRUE)
-            gSprites[spriteIds[i]].invisible = TRUE;
-        else // Try visible.
-            gSprites[spriteIds[i]].invisible = MegaIndicator_ShouldBeInvisible(battlerId, i);
-    }
+    if (invisible == TRUE)
+        gSprites[spriteId].invisible = TRUE;
+    else // Try visible.
+        gSprites[spriteId].invisible = !Indicator_SetIcon(battlerId, spriteId);
 }
 
-static void MegaIndicator_UpdateOamPriorities(u32 healthboxId, u32 oamPriority)
+static void Indicator_UpdateOamPriorities(u32 healthboxId, u32 oamPriority)
 {
-    u32 i;
-    u8 *spriteIds = MegaIndicator_GetSpriteIds(healthboxId);
-    for (i = 0; i < INDICATOR_COUNT; i++)
-        gSprites[spriteIds[i]].oam.priority = oamPriority;
+    u8 spriteId = gSprites[healthboxId].hMain_IndicatorId;
+    gSprites[spriteId].oam.priority = oamPriority;
 }
 
-static void MegaIndicator_UpdateLevel(u32 healthboxId, u32 level)
+static void Indicator_CreateSprite(u32 battlerId, u32 healthboxSpriteId)
 {
-    u32 i;
-    s16 xDelta = 0;
-    u8 *spriteIds = MegaIndicator_GetSpriteIds(healthboxId);
-
-    if (level >= 100)
-        xDelta -= 5;
-    else if (level < 10)
-        xDelta += 5;
-
-    for (i = 0; i < INDICATOR_COUNT; i++)
-        gSprites[spriteIds[i]].tLevelXDelta = xDelta;
-}
-
-static void MegaIndicator_CreateSprites(u32 battlerId, u32 healthboxSpriteId)
-{
-    u32 position, i, level;
-    u8 *spriteIds;
+    u32 position;
+    u8 spriteId;
     s16 xHealthbox = 0, y = 0;
     s32 x = 0;
 
@@ -2022,21 +2018,39 @@ static void MegaIndicator_CreateSprites(u32 battlerId, u32 healthboxSpriteId)
     x = sIndicatorPositions[position][0];
     y += sIndicatorPositions[position][1];
 
-    spriteIds = MegaIndicator_GetSpriteIds(healthboxSpriteId);
-    for (i = 0; i < INDICATOR_COUNT; i++)
+    if (WhichBattleCoords(battlerId) == 0) // Singles
     {
-        struct SpriteTemplate sprTemplate = sSpriteTemplate_MegaIndicator;
-        sprTemplate.tileTag = sMegaIndicatorTags[i][0];
-        sprTemplate.paletteTag = sMegaIndicatorTags[i][1];
-        spriteIds[i] = CreateSpriteAtEnd(&sprTemplate, 0, y, 0);
-        gSprites[spriteIds[i]].tType = i;
-        gSprites[spriteIds[i]].tBattler = battlerId;
-        gSprites[spriteIds[i]].tPosX = x;
-        gSprites[spriteIds[i]].invisible = TRUE;
+        if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
+            spriteId = CreateSpriteAtEnd(&sIndicatorPlayerSpriteTemplates[0], 0, y, 0);
+        else
+            spriteId = CreateSpriteAtEnd(&sIndicatorOpponentSpriteTemplates[0], 0, y, 0);
     }
+    else // Doubles
+    {
+        if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
+            spriteId = CreateSpriteAtEnd(&sIndicatorPlayerSpriteTemplates[position/2], 0, y, 0);
+        else
+            spriteId = CreateSpriteAtEnd(&sIndicatorOpponentSpriteTemplates[position/2], 0, y, 0);
+    }
+
+    gSprites[spriteId].tBattler = battlerId;
+    gSprites[spriteId].tPosX = x;
+    gSprites[spriteId].invisible = TRUE;
+
+    gSprites[healthboxSpriteId].hMain_IndicatorId = spriteId;
+
+    CpuCopy32(GetIndicatorGfxPtr(INDICATOR_GFX_BLANK),
+              (void *)(OBJ_VRAM0 + (gSprites[spriteId].oam.tileNum) * TILE_SIZE_4BPP),
+              64);
+
 }
 
-static void SpriteCb_MegaIndicator(struct Sprite *sprite)
+static const u8 *GetIndicatorGfxPtr(u8 indicatorId)
+{
+    return gBattleInterface_IndicatorsGfxTable[indicatorId];
+}
+
+static void SpriteCb_Indicator(struct Sprite *sprite)
 {
     u32 battlerId = sprite->tBattler;
 
@@ -2646,7 +2660,7 @@ static void UpdateStatusIconInHealthbox(u8 healthboxSpriteId)
         // if (!gBattleSpritesDataPtr->battlerData[battlerId].hpNumbersNoBars)
         //     CpuCopy32(GetHealthboxElementGfxPtr(HEALTHBOX_GFX_1), (void *)(OBJ_VRAM0 + gSprites[healthBarSpriteId].oam.tileNum * TILE_SIZE_4BPP), 64);
 
-        TryAddPokeballIconToHealthbox(healthboxSpriteId, TRUE);
+        //TryAddPokeballIconToHealthbox(healthboxSpriteId, TRUE);
         return;
     }
 
@@ -2668,7 +2682,7 @@ static void UpdateStatusIconInHealthbox(u8 healthboxSpriteId)
             // CpuCopy32(GetHealthboxElementGfxPtr(HEALTHBOX_GFX_65), (void *)(OBJ_VRAM0 + (gSprites[healthBarSpriteId].oam.tileNum + 1) * TILE_SIZE_4BPP), 32);
         }
     }
-    TryAddPokeballIconToHealthbox(healthboxSpriteId, FALSE);
+    //TryAddPokeballIconToHealthbox(healthboxSpriteId, FALSE);
 }
 
 static u8 GetStatusIconForBattlerId(u8 statusElementId, u8 battlerId)
