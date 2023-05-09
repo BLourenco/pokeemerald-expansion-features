@@ -61,6 +61,11 @@ enum
 #define TAG_INDICATOR_OPPONENT2_TILE    0xD77C
 #define TAG_INDICATOR_PAL               TAG_INDICATOR_PLAYER1_TILE // All indicators use the same palette.
 
+#define TAG_STATUS_PLAYER1_TILE         0xD77D
+#define TAG_STATUS_PLAYER2_TILE         0xD77E
+#define TAG_STATUS_OPPONENT1_TILE       0xD77F
+#define TAG_STATUS_OPPONENT2_TILE       0xD780
+
 enum
 {
     HEALTHBOX_ALL,

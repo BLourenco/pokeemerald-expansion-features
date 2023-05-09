@@ -673,6 +673,16 @@ const u16 gBattleInterface_BallStatusBarPal[] = INCBIN_U16("graphics/battle_inte
 
 const u16 gBattleInterface_BallDisplayPal[] = INCBIN_U16("graphics/battle_interface/ball_display.gbapal");
 
+const u8 gBattleInterface_StatusGfxTable[] = INCBIN_U8("graphics/battle_interface/status_blank.4bpp",
+                                                       "graphics/battle_interface/status_paralyze.4bpp",
+                                                       "graphics/battle_interface/status_burn.4bpp",
+                                                       "graphics/battle_interface/status_poison.4bpp",
+                                                       "graphics/battle_interface/status_poison_badly.4bpp",
+                                                       "graphics/battle_interface/status_frozen.4bpp",
+                                                       "graphics/battle_interface/status_frostbite.4bpp",
+                                                       "graphics/battle_interface/status_sleep.4bpp",
+                                                       "graphics/battle_interface/status_drowzy.4bpp");
+
 const u8 gBattleInterface_IndicatorsGfxTable[] = INCBIN_U8("graphics/battle_interface/indicator_blank.4bpp",
                                                           "graphics/battle_interface/indicator_caught.4bpp",
                                                           "graphics/battle_interface/indicator_mega.4bpp",

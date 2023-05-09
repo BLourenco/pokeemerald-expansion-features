@@ -110,6 +110,25 @@ static const struct SpritePalette sIndicator_SpritePalette =
     gBattleInterface_IndicatorsPal, TAG_INDICATOR_PAL
 };
 
+static const struct CompressedSpriteSheet sSpriteSheet_SinglesPlayerStatus =
+{
+    gBattleInterface_StatusGfxTable, 0x40, TAG_STATUS_PLAYER1_TILE
+};
+static const struct CompressedSpriteSheet sSpriteSheet_SinglesOpponentStatus =
+{
+    gBattleInterface_StatusGfxTable, 0x40, TAG_STATUS_OPPONENT1_TILE
+};
+static const struct CompressedSpriteSheet sSpriteSheet_DoublesPlayerStatus[2] =
+{
+    {gBattleInterface_StatusGfxTable, 0x40, TAG_STATUS_PLAYER1_TILE},
+    {gBattleInterface_StatusGfxTable, 0x40, TAG_STATUS_PLAYER2_TILE}
+};
+static const struct CompressedSpriteSheet sSpriteSheet_DoublesOpponentStatus[2] =
+{
+    {gBattleInterface_StatusGfxTable, 0x40, TAG_STATUS_OPPONENT1_TILE},
+    {gBattleInterface_StatusGfxTable, 0x40, TAG_STATUS_OPPONENT2_TILE}
+};
+
 // code
 void AllocateBattleSpritesData(void)
 {
@@ -742,6 +761,10 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
                 LoadCompressedSpriteSheet(&sSpriteSheet_SinglesPlayerIndicator);
             else if (state == 7)
                 LoadCompressedSpriteSheet(&sSpriteSheet_SinglesOpponentIndicator);
+            else if (state == 8)
+                LoadCompressedSpriteSheet(&sSpriteSheet_SinglesPlayerStatus);
+            else if (state == 9)
+                LoadCompressedSpriteSheet(&sSpriteSheet_SinglesOpponentStatus);
             else
                 retVal = TRUE;
         }
@@ -771,6 +794,14 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
                 LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentIndicators[0]);
             else if (state == 13)
                 LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentIndicators[1]);
+            else if (state == 14)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesPlayerStatus[0]);
+            else if (state == 15)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesPlayerStatus[1]);
+            else if (state == 16)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentStatus[0]);
+            else if (state == 17)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentStatus[1]);
             else
                 retVal = TRUE;
         }
@@ -805,6 +836,14 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
                 LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentIndicators[0]);
             else if (state == 13)
                 LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentIndicators[1]);
+            else if (state == 14)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesPlayerStatus[0]);
+            else if (state == 15)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesPlayerStatus[1]);
+            else if (state == 16)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentStatus[0]);
+            else if (state == 17)
+                LoadCompressedSpriteSheet(&sSpriteSheet_DoublesOpponentStatus[1]);
             else
                 retVal = TRUE;
         }
