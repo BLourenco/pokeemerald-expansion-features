@@ -1135,7 +1135,7 @@ void HandleLowHpMusicChange(struct Pokemon *mon, u8 battlerId)
         if (!gBattleSpritesDataPtr->battlerData[battlerId].lowHpSong)
         {
             if (!gBattleSpritesDataPtr->battlerData[BATTLE_PARTNER(battlerId)].lowHpSong)
-                PlaySE(SE_LOW_HEALTH);
+                PlaySE(SE_LOW_HEALTH_NO_LOOP);
             gBattleSpritesDataPtr->battlerData[battlerId].lowHpSong = 1;
         }
     }
@@ -1144,12 +1144,12 @@ void HandleLowHpMusicChange(struct Pokemon *mon, u8 battlerId)
         gBattleSpritesDataPtr->battlerData[battlerId].lowHpSong = 0;
         if (!IsDoubleBattle())
         {
-            m4aSongNumStop(SE_LOW_HEALTH);
+            m4aSongNumStop(SE_LOW_HEALTH_NO_LOOP);
             return;
         }
         if (IsDoubleBattle() && !gBattleSpritesDataPtr->battlerData[BATTLE_PARTNER(battlerId)].lowHpSong)
         {
-            m4aSongNumStop(SE_LOW_HEALTH);
+            m4aSongNumStop(SE_LOW_HEALTH_NO_LOOP);
             return;
         }
     }

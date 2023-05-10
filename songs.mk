@@ -903,6 +903,9 @@ $(MID_SUBDIR)/se_rotating_gate.s: %.s: %.mid
 $(MID_SUBDIR)/se_low_health.s: %.s: %.mid
 	$(MID) $< $@ -E -R$(STD_REVERB) -G127 -V100 -P3
 
+$(MID_SUBDIR)/se_low_health_no_loop.s: %.s: %.mid
+	$(MID) $< $@ -E -R$(STD_REVERB) -G127 -V100 -P3
+
 $(MID_SUBDIR)/se_i.s: %.s: %.mid
 	$(MID) $< $@ -E -R$(STD_REVERB) -G128 -V120 -P4
 

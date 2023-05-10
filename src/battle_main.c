@@ -1798,7 +1798,7 @@ static void FreeRestoreBattleData(void)
     gScanlineEffect.state = 3;
     gMain.inBattle = FALSE;
     ZeroEnemyPartyMons();
-    m4aSongNumStop(SE_LOW_HEALTH);
+    m4aSongNumStop(SE_LOW_HEALTH_NO_LOOP);
     FreeMonSpritesGfx();
     FreeBattleSpritesData();
     FreeBattleResources();
