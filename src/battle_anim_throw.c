@@ -823,14 +823,15 @@ void AnimTask_FlashHealthboxOnLevelUp(u8 taskId)
 static void AnimTask_FlashHealthboxOnLevelUp_Step(u8 taskId)
 {
     u8 paletteNum;
-    u32 paletteOffset, colorOffset;
+    u32 paletteOffset, colorOffset1, colorOffset2;
 
     gTasks[taskId].data[0]++;
     if (gTasks[taskId].data[0]++ >= gTasks[taskId].data[11])
     {
         gTasks[taskId].data[0] = 0;
         paletteNum = IndexOfSpritePaletteTag(TAG_HEALTHBOX_PALS_1);
-        colorOffset = gTasks[taskId].data[10] == 0 ? 6 : 2;
+        colorOffset1 = 2;
+        colorOffset2 = 6;
         switch (gTasks[taskId].data[1])
         {
         case 0:
@@ -839,7 +840,8 @@ static void AnimTask_FlashHealthboxOnLevelUp_Step(u8 taskId)
                 gTasks[taskId].data[2] = 16;
 
             paletteOffset = OBJ_PLTT_ID(paletteNum);
-            BlendPalette(paletteOffset + colorOffset, 1, gTasks[taskId].data[2], RGB(20, 27, 31));
+            BlendPalette(paletteOffset + colorOffset1, 1, gTasks[taskId].data[2], RGB(20, 27, 31));
+            BlendPalette(paletteOffset + colorOffset2, 1, gTasks[taskId].data[2], RGB(20, 27, 31));
             if (gTasks[taskId].data[2] == 16)
                 gTasks[taskId].data[1]++;
             break;
@@ -849,7 +851,8 @@ static void AnimTask_FlashHealthboxOnLevelUp_Step(u8 taskId)
                 gTasks[taskId].data[2] = 0;
 
             paletteOffset = OBJ_PLTT_ID(paletteNum);
-            BlendPalette(paletteOffset + colorOffset, 1, gTasks[taskId].data[2], RGB(20, 27, 31));
+            BlendPalette(paletteOffset + colorOffset1, 1, gTasks[taskId].data[2], RGB(20, 27, 31));
+            BlendPalette(paletteOffset + colorOffset2, 1, gTasks[taskId].data[2], RGB(20, 27, 31));
             if (gTasks[taskId].data[2] == 0)
                 DestroyAnimVisualTask(taskId);
             break;

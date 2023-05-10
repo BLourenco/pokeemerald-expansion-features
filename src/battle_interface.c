@@ -683,6 +683,39 @@ static const struct WindowTemplate sHealthboxWindowTemplate = {
     .baseBlock = 0
 };
 
+const struct CompressedSpriteSheet gSpriteSheet_EnemyShadow =
+{
+    .data = gEnemyMonShadow_Gfx, .size = 0x80, .tag = TAG_SHADOW_GFX
+};
+
+static const struct OamData sOamData_EnemyShadow =
+{
+    .y = 0,
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .mosaic = FALSE,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(32x8),
+    .x = 0,
+    .matrixNum = 0,
+    .size = SPRITE_SIZE(32x8),
+    .tileNum = 0,
+    .priority = 3,
+    .paletteNum = 0,
+    .affineParam = 0
+};
+
+const struct SpriteTemplate gSpriteTemplate_EnemyShadow =
+{
+    .tileTag = TAG_SHADOW_GFX,
+    .paletteTag = TAG_SHADOW_PAL,
+    .oam = &sOamData_EnemyShadow,
+    .anims = gDummySpriteAnimTable,
+    .images = NULL,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCB_SetInvisible
+};
+
 static const u8 ALIGNED(4) sMegaTriggerGfx[] = INCBIN_U8("graphics/battle_interface/mega_trigger.4bpp");
 static const u16 sMegaTriggerPal[] = INCBIN_U16("graphics/battle_interface/mega_trigger.gbapal");
 
@@ -914,6 +947,17 @@ u32 WhichBattleCoords(u32 battlerId) // 0 - singles, 1 - doubles
         return IsDoubleBattle();
 }
 
+static u8 GetBattlerRelation(u8 battlerId)
+{
+    if (gBattleTypeFlags & BATTLE_TYPE_MULTI
+            && GetBattlerPosition(battlerId) == 2)
+        return RELATION_PARTNER;
+    else if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
+        return RELATION_PLAYER;
+    else
+        return RELATION_OPPONENT;
+}
+
 u8 CreateBattlerHealthboxSprites(u8 battlerId)
 {
     s16 data6 = 0;
@@ -949,8 +993,7 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
     }
     else // Doubles / Multi
     {
-        if (gBattleTypeFlags & BATTLE_TYPE_MULTI
-            && GetBattlerPosition(battlerId) == 2)
+        if (GetBattlerRelation(battlerId) == RELATION_PARTNER)
         {
             healthboxLeftSpriteId = CreateSprite(&sHealthboxPartnerSpriteTemplates[GetBattlerPosition(battlerId) / 2], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
             healthboxRightSpriteId = CreateSpriteAtEnd(&sHealthboxPartnerSpriteTemplates[GetBattlerPosition(battlerId) / 2], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
@@ -963,7 +1006,7 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
 
             data6 = 1;
         }
-        else if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
+        else if (GetBattlerRelation(battlerId) == RELATION_PLAYER)
         {
             healthboxLeftSpriteId = CreateSprite(&sHealthboxPlayerSpriteTemplates[GetBattlerPosition(battlerId) / 2], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
             healthboxRightSpriteId = CreateSpriteAtEnd(&sHealthboxPlayerSpriteTemplates[GetBattlerPosition(battlerId) / 2], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
@@ -1053,16 +1096,16 @@ static void SpriteCB_HealthBar(struct Sprite *sprite)
     {
     case 0:
         sprite->x = gSprites[healthboxSpriteId].x + 26;
-        sprite->y = gSprites[healthboxSpriteId].y + 1;
+        sprite->y = gSprites[healthboxSpriteId].y;
         break;
     case 1:
         sprite->x = gSprites[healthboxSpriteId].x + 26;
-        sprite->y = gSprites[healthboxSpriteId].y + 1;
+        sprite->y = gSprites[healthboxSpriteId].y;
         break;
     case 2:
     default:
         sprite->x = gSprites[healthboxSpriteId].x - 10;
-        sprite->y = gSprites[healthboxSpriteId].y + 1;
+        sprite->y = gSprites[healthboxSpriteId].y;
         break;
     }
 
@@ -1242,7 +1285,7 @@ static void UpdateLvlInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     objVram = ConvertIntToDecimalStringN(gDisplayedStringBattle + appendPoint, lvl, STR_CONV_MODE_LEFT_ALIGN, 3);
     xPos = 5 * (3 - (objVram - (gDisplayedStringBattle + appendPoint)));
 
-    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(gDisplayedStringBattle, xPos, 2, FONT_SMALL_OUTLINED, 6, 1, 0, &windowId); // Gender/Lv.### FG colors are set in the string itself.
+    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(gDisplayedStringBattle, xPos, 2, FONT_SMALL_OUTLINED, 2, 1, 0, &windowId); // Gender/Lv.### FG colors are set in the string itself.
     spriteTileNum = gSprites[healthboxSpriteId].oam.tileNum * TILE_SIZE_4BPP;
 
     if (GetBattlerSide(battler) == B_SIDE_PLAYER)
@@ -1402,7 +1445,7 @@ void UpdateHpTextInHealthbox(u32 healthboxSpriteId, u32 maxOrCurrent, s16 currHp
     {
         if (GetBattlerSide(battlerId) == B_SIDE_PLAYER) // Player
         {
-            PrintHpOnHealthbox(healthboxSpriteId, currHp, maxHp, 0, 5, FONT_SMALL, 3, 1, 7, 0xB00, 0x3A0);
+            PrintHpOnHealthbox(healthboxSpriteId, currHp, maxHp, 0, 5, FONT_SMALL, 2, 1, 6, 0xB00, 0x3A0);
         }
         else // Opponent
         {
@@ -2768,7 +2811,7 @@ static void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     GetMonData(mon, MON_DATA_NICKNAME, nickname);
     ptr = StringAppend(gDisplayedStringBattle, nickname);
 
-    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(nickname, 3, 2, FONT_SMALL_NARROW_OUTLINED, 6, 1, 0, &windowId);
+    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(nickname, 3, 2, FONT_SMALL_NARROW_OUTLINED, 2, 1, 0, &windowId);
 
     spriteTileNum = gSprites[healthboxSpriteId].oam.tileNum * TILE_SIZE_4BPP;
 
@@ -2824,7 +2867,7 @@ static void UpdateSafariBallsTextOnHealthbox(u8 healthboxSpriteId)
     u32 windowId, spriteTileNum;
     u8 *windowTileData;
 
-    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(gText_SafariBalls, 0, 3, FONT_SMALL_OUTLINED, 6, 1, 0, &windowId);
+    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(gText_SafariBalls, 0, 3, FONT_SMALL_OUTLINED, 2, 1, 0, &windowId);
     spriteTileNum = gSprites[healthboxSpriteId].oam.tileNum * TILE_SIZE_4BPP;
     TextIntoHealthboxObject((void *)(OBJ_VRAM0 + 0x40) + spriteTileNum, windowTileData, 6);
     TextIntoHealthboxObject((void *)(OBJ_VRAM0 + 0x800) + spriteTileNum, windowTileData + 0xC0, 2);
@@ -2841,7 +2884,7 @@ static void UpdateLeftNoOfBallsTextOnHealthbox(u8 healthboxSpriteId)
     txtPtr = StringCopy(text, gText_SafariBallLeft);
     ConvertIntToDecimalStringN(txtPtr, gNumSafariBalls, STR_CONV_MODE_LEFT_ALIGN, 2);
 
-    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(text, GetStringRightAlignXOffset(FONT_SMALL_OUTLINED, text, 0x2F), 3, FONT_SMALL_OUTLINED, 6, 1, 0, &windowId);
+    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(text, GetStringRightAlignXOffset(FONT_SMALL_OUTLINED, text, 0x2F), 3, FONT_SMALL_OUTLINED, 2, 1, 0, &windowId);
     spriteTileNum = gSprites[healthboxSpriteId].oam.tileNum * TILE_SIZE_4BPP;
     SafariTextIntoHealthboxObject((void *)(OBJ_VRAM0 + 0x2C0) + spriteTileNum, windowTileData, 2);
     SafariTextIntoHealthboxObject((void *)(OBJ_VRAM0 + 0xA00) + spriteTileNum, windowTileData + 0x40, 4);
@@ -3356,27 +3399,27 @@ static const struct SpriteTemplate sSpriteTemplate_AbilityPopUpPartner =
     .callback = SpriteCb_AbilityPopUp
 };
 
-#define ABILITY_POP_UP_POS_X_DIFF (64 - 2) // Tuck second sprite underneath to gain proper letter spacing
+#define ABILITY_POP_UP_POS_X_DIFF (64 - 3) // Tuck second sprite underneath to gain proper letter spacing
 #define ABILITY_POP_UP_POS_X_SLIDE 97
 
 static const s16 sAbilityPopUpCoordsDoubles[MAX_BATTLERS_COUNT][2] =
 {
     {19, 80}, // player left
-    {175, 19}, // opponent left
+    {176, 19}, // opponent left
     {19, 97}, // player right
-    {175, 36}, // opponent right
+    {176, 36}, // opponent right
 };
 
 static const s16 sAbilityPopUpCoordsSingles[MAX_BATTLERS_COUNT][2] =
 {
     {19, 97}, // player
-    {175, 57}, // opponent
+    {176, 57}, // opponent
 };
 
 #define POPUP_WINDOW_WIDTH 8
 #define MAX_POPUP_STRING_WIDTH (POPUP_WINDOW_WIDTH * 8)
 
-static u8* AddTextPrinterAndCreateWindowOnAbilityPopUp(const u8 *str, u32 x, u32 y, u32 color1, u32 color2, u32 color3, u32 *windowId)
+static u8* AddTextPrinterAndCreateWindowOnAbilityPopUp(const u8 *str, u32 x, u32 y, u8 font, u32 color1, u32 color2, u32 color3, u32 *windowId)
 {
     u8 color[3] = {color1, color2, color3};
     struct WindowTemplate winTemplate = {0};
@@ -3386,7 +3429,7 @@ static u8* AddTextPrinterAndCreateWindowOnAbilityPopUp(const u8 *str, u32 x, u32
     *windowId = AddWindow(&winTemplate);
     FillWindowPixelBuffer(*windowId, PIXEL_FILL(color1));
 
-    AddTextPrinterParameterized4(*windowId, FONT_SMALL, x, y, 0, 0, color, TEXT_SKIP_DRAW, str);
+    AddTextPrinterParameterized4(*windowId, font, x, y, 0, 0, color, TEXT_SKIP_DRAW, str);
     return (u8 *)(GetWindowAttribute(*windowId, WINDOW_TILE_DATA));
 }
 
@@ -3407,21 +3450,21 @@ static void TextIntoAbilityPopUp(void *dest, u8 *windowTileData, s32 xTileAmount
     }
 }
 
-static void PrintOnAbilityPopUp(const u8 *str, u8 *spriteTileData1, u8 *spriteTileData2, u32 x1, u32 x2, u32 y, u32 color1, u32 color2, u32 color3)
+static void PrintOnAbilityPopUp(const u8 *str, u8 *spriteTileData1, u8 *spriteTileData2, u32 x1, u32 x2, u32 y, u8 font, u32 color1, u32 color2, u32 color3)
 {
     u32 windowId;
     u8 *windowTileData;
     u16 width;
 
-    windowTileData = AddTextPrinterAndCreateWindowOnAbilityPopUp(str, x1, y, color1, color2, color3, &windowId);
+    windowTileData = AddTextPrinterAndCreateWindowOnAbilityPopUp(str, x1, y, font, color1, color2, color3, &windowId);
     TextIntoAbilityPopUp(spriteTileData1, windowTileData, 6, (y == 0));
     RemoveWindow(windowId);
 
-    width = GetStringWidth(FONT_SMALL, str, 0);
+    width = GetStringWidth(font, str, 0);
 
     if (width > 48)
     {
-        windowTileData = AddTextPrinterAndCreateWindowOnAbilityPopUp(str, x2 - MAX_POPUP_STRING_WIDTH, y, color1, color2, color3, &windowId);
+        windowTileData = AddTextPrinterAndCreateWindowOnAbilityPopUp(str, x2 - MAX_POPUP_STRING_WIDTH, y, font, color1, color2, color3, &windowId);
         TextIntoAbilityPopUp(spriteTileData2, windowTileData, 4, (y == 0));
         RemoveWindow(windowId);
     }
@@ -3430,15 +3473,15 @@ static void PrintOnAbilityPopUp(const u8 *str, u8 *spriteTileData1, u8 *spriteTi
 // Colors based of ability pop up palette
 static u8 GetAbilityPopUpColor(u8 battlerId)
 {
-    if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
+    switch (GetBattlerRelation(battlerId))
     {
-        if (GetBattlerPosition(battlerId) == 2 && gBattleTypeFlags & BATTLE_TYPE_MULTI)
-            return 7;
-        else
-            return 5;
+    case RELATION_PLAYER:
+        return 5;
+    case RELATION_OPPONENT:
+        return 6;
+    case RELATION_PARTNER:
+        return 4;
     }
-
-    return 6;
 }
 
 static const u8 sText_Space16[]= _("                ");
@@ -3449,7 +3492,8 @@ static void ClearAbilityName(u8 battlerId, u8 spriteId1, u8 spriteId2)
                         (void*)(OBJ_VRAM0) + (gSprites[spriteId2].oam.tileNum * 32) + 256,
                         0, 18,
                         4,
-                        GetAbilityPopUpColor(battlerId), 2, 3);
+                        FONT_SMALL,
+                        GetAbilityPopUpColor(battlerId), 2, 1);
 }
 
 static void PrintBattlerOnAbilityPopUp(u8 battlerId, u8 spriteId1, u8 spriteId2)
@@ -3489,9 +3533,10 @@ static void PrintBattlerOnAbilityPopUp(u8 battlerId, u8 spriteId1, u8 spriteId2)
     PrintOnAbilityPopUp((const u8 *)monName,
                         (void*)(OBJ_VRAM0) + (gSprites[spriteId1].oam.tileNum * 32) + 64,
                         (void*)(OBJ_VRAM0) + (gSprites[spriteId2].oam.tileNum * 32),
-                        0, 18,
-                        1,
-                        GetAbilityPopUpColor(battlerId), 2, 3);
+                        0, 19,
+                        0,
+                        FONT_TINY_OUTLINED,
+                        0, 2, 1);
 }
 
 static void PrintAbilityOnAbilityPopUp(u8 battlerId, u32 ability, u8 spriteId1, u8 spriteId2)
@@ -3499,9 +3544,10 @@ static void PrintAbilityOnAbilityPopUp(u8 battlerId, u32 ability, u8 spriteId1, 
     PrintOnAbilityPopUp(gAbilityNames[ability],
                         (void*)(OBJ_VRAM0) + (gSprites[spriteId1].oam.tileNum * 32) + 256 + 64,
                         (void*)(OBJ_VRAM0) + (gSprites[spriteId2].oam.tileNum * 32) + 256,
-                        0, 18,
+                        0, 19,
                         4,
-                        GetAbilityPopUpColor(battlerId), 2, 3);
+                        FONT_SMALL,
+                        GetAbilityPopUpColor(battlerId), 2, 1);
 }
 
 #define PIXEL_COORDS_TO_OFFSET(x, y)(            \
@@ -3571,6 +3617,9 @@ static const u16 sOverwrittenPixelsTable[][2] =
     {PIXEL_COORDS_TO_OFFSET(16, 45), 8},
     {PIXEL_COORDS_TO_OFFSET(16, 46), 8},
     {PIXEL_COORDS_TO_OFFSET(16, 47), 8},
+    {PIXEL_COORDS_TO_OFFSET(24, 45), 8},
+    {PIXEL_COORDS_TO_OFFSET(24, 46), 8},
+    {PIXEL_COORDS_TO_OFFSET(24, 47), 8},
 };
 
 static inline void CopyPixels(u8 *dest, const u8 *src, u32 pixelCount)
@@ -3599,9 +3648,24 @@ static inline void CopyPixels(u8 *dest, const u8 *src, u32 pixelCount)
     }
 }
 
-static void RestoreOverwrittenPixels(u8 *tiles)
+static void RestoreOverwrittenPixels(u8 *tiles, u8 battlerId)
 {
     u32 i;
+    const u8 *gfx = sAbilityPopUpGfx;
+
+    switch (GetBattlerRelation(battlerId))
+    {
+    case RELATION_PLAYER:
+        gfx = sAbilityPopUpGfx;
+        break;
+    case RELATION_OPPONENT:
+        gfx = sAbilityPopUpOpponentGfx;
+        break;
+    case RELATION_PARTNER:
+        gfx = sAbilityPopUpPartnerGfx;
+        break;
+    }
+    
     u8 *buffer = Alloc(sizeof(sAbilityPopUpGfx) * 2);
 
     CpuCopy32(tiles, buffer, sizeof(sAbilityPopUpGfx));
@@ -3609,7 +3673,7 @@ static void RestoreOverwrittenPixels(u8 *tiles)
     for (i = 0; i < ARRAY_COUNT(sOverwrittenPixelsTable); i++)
     {
         CopyPixels(buffer + sOverwrittenPixelsTable[i][0],
-                   sAbilityPopUpGfx + sOverwrittenPixelsTable[i][0],
+                   gfx + sOverwrittenPixelsTable[i][0],
                    sOverwrittenPixelsTable[i][1]);
     }
 
@@ -3637,12 +3701,11 @@ void CreateAbilityPopUp(u8 battlerId, u32 ability, bool32 isDoubleBattle)
 
     if (!(gBattleStruct->activeAbilityPopUps & gBitTable[battlerId]))
     {
-        if (gBattleTypeFlags & BATTLE_TYPE_MULTI
-            && battlerPosition == 2)
+        if (GetBattlerRelation(battlerId) == RELATION_PARTNER)
         {
             LoadSpriteSheet(&sSpriteSheet_AbilityPopUpPartner);
         }
-        else if ((battlerPosition & BIT_SIDE) == B_SIDE_PLAYER)
+        else if (GetBattlerRelation(battlerId) == RELATION_PLAYER)
         {
             LoadSpriteSheet(&sSpriteSheet_AbilityPopUp);
         }
@@ -3660,8 +3723,7 @@ void CreateAbilityPopUp(u8 battlerId, u32 ability, bool32 isDoubleBattle)
     else
         coords = sAbilityPopUpCoordsSingles;
 
-    if (gBattleTypeFlags & BATTLE_TYPE_MULTI
-        && battlerPosition == 2)
+    if (GetBattlerRelation(battlerId) == RELATION_PARTNER)
     {
         spriteId1 = CreateSprite(&sSpriteTemplate_AbilityPopUpPartner,
                                 coords[battlerPosition][0] - ABILITY_POP_UP_POS_X_SLIDE,
@@ -3675,7 +3737,7 @@ void CreateAbilityPopUp(u8 battlerId, u32 ability, bool32 isDoubleBattle)
 
         taskId = CreateTask(Task_FreeAbilityPopUpPartnerGfx, 5);
     }
-    else if ((battlerPosition & BIT_SIDE) == B_SIDE_PLAYER)
+    else if (GetBattlerRelation(battlerId) == RELATION_PLAYER)
     {
         spriteId1 = CreateSprite(&sSpriteTemplate_AbilityPopUp,
                                 coords[battlerPosition][0] - ABILITY_POP_UP_POS_X_SLIDE,
@@ -3723,7 +3785,7 @@ void CreateAbilityPopUp(u8 battlerId, u32 ability, bool32 isDoubleBattle)
 
     PrintBattlerOnAbilityPopUp(battlerId, spriteId1, spriteId2);
     PrintAbilityOnAbilityPopUp(battlerId, ability, spriteId1, spriteId2);
-    //RestoreOverwrittenPixels((void*)(OBJ_VRAM0) + (gSprites[spriteId1].oam.tileNum * 32));
+    RestoreOverwrittenPixels((void*)(OBJ_VRAM0) + (gSprites[spriteId1].oam.tileNum * 32), battlerId);
 #endif
 }
 
@@ -3735,7 +3797,7 @@ void UpdateAbilityPopup(u8 battlerId)
 
     ClearAbilityName(battlerId, spriteId1, spriteId2);
     PrintAbilityOnAbilityPopUp(battlerId, ability, spriteId1, spriteId2);
-    //RestoreOverwrittenPixels((void*)(OBJ_VRAM0) + (gSprites[spriteId1].oam.tileNum * 32));
+    RestoreOverwrittenPixels((void*)(OBJ_VRAM0) + (gSprites[spriteId1].oam.tileNum * 32), battlerId);
 }
 
 #define FRAMES_TO_WAIT 90
@@ -3746,7 +3808,7 @@ static void SpriteCb_AbilityPopUp(struct Sprite *sprite)
     if (!sprite->tHide) // Show
     {
         if (sprite->tIsMain && ++sprite->tFrames == PIXELS_TO_MOVE_PER_FRAME)
-            PlaySE(SE_BALL_TRAY_ENTER);
+            PlaySE(SE_ICE_STAIRS); // SE_M_HARDEN is a similar alternative
         if ((!sprite->tRightToLeft && (sprite->x -= PIXELS_TO_MOVE_PER_FRAME) <= sprite->tOriginalX)
             || (sprite->tRightToLeft && (sprite->x += PIXELS_TO_MOVE_PER_FRAME) >= sprite->tOriginalX)
            )
@@ -3786,26 +3848,22 @@ void DestroyAbilityPopUp(u8 battlerId)
     }
 }
 
-#define PLAYER   0
-#define PARTNER  1
-#define OPPONENT 2
-
 static bool8 IsAbilityPopupActive(u8 trainerRelation)
 {
     switch (trainerRelation)
     {
-    case PLAYER:
+    case RELATION_PLAYER:
         if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
             return gBattleStruct->activeAbilityPopUps & gBitTable[0];
         else
             return gBattleStruct->activeAbilityPopUps & gBitTable[0]
                    && gBattleStruct->activeAbilityPopUps & gBitTable[2];        
-    case PARTNER:
+    case RELATION_PARTNER:
         if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
             return gBattleStruct->activeAbilityPopUps & gBitTable[2];
         else
             return FALSE;
-    case OPPONENT:
+    case RELATION_OPPONENT:
         return gBattleStruct->activeAbilityPopUps & gBitTable[1]
                 && gBattleStruct->activeAbilityPopUps & gBitTable[3];
     }
@@ -3816,7 +3874,7 @@ static void Task_FreeAbilityPopUpGfx(u8 taskId)
 {
     if (!gSprites[gTasks[taskId].tSpriteId1].inUse
         && !gSprites[gTasks[taskId].tSpriteId2].inUse
-        && !IsAbilityPopupActive(PLAYER))
+        && !IsAbilityPopupActive(RELATION_PLAYER))
     {
         FreeSpriteTilesByTag(ABILITY_POP_UP_TAG);
         FreeSpritePaletteByTag(ABILITY_POP_UP_TAG);
@@ -3828,7 +3886,7 @@ static void Task_FreeAbilityPopUpOpponentGfx(u8 taskId)
 {
     if (!gSprites[gTasks[taskId].tSpriteId1].inUse
         && !gSprites[gTasks[taskId].tSpriteId2].inUse
-        && !IsAbilityPopupActive(OPPONENT))
+        && !IsAbilityPopupActive(RELATION_OPPONENT))
     {
         FreeSpriteTilesByTag(ABILITY_POP_UP_OPPONENT_TAG);
         FreeSpritePaletteByTag(ABILITY_POP_UP_TAG);
@@ -3840,17 +3898,13 @@ static void Task_FreeAbilityPopUpPartnerGfx(u8 taskId)
 {
     if (!gSprites[gTasks[taskId].tSpriteId1].inUse
         && !gSprites[gTasks[taskId].tSpriteId2].inUse
-        && !IsAbilityPopupActive(PARTNER))
+        && !IsAbilityPopupActive(RELATION_PARTNER))
     {
         FreeSpriteTilesByTag(ABILITY_POP_UP_PARTNER_TAG);
         FreeSpritePaletteByTag(ABILITY_POP_UP_TAG);
         DestroyTask(taskId);
     }
 }
-
-#undef PLAYER
-#undef PARTNER
-#undef OPPONENT
 
 // last used ball
 #define LAST_BALL_WINDOW_TAG 0xD723
@@ -3900,6 +3954,9 @@ static const struct SpriteSheet sSpriteSheet_LastUsedBallWindow =
 #define LAST_BALL_WIN_X_F       (LAST_USED_BALL_X_F - 1)
 #define LAST_BALL_WIN_X_0       (LAST_USED_BALL_X_0 - 0)
 #define LAST_USED_WIN_Y         (LAST_USED_BALL_Y - 8)
+
+#define LAST_USED_BALL_DX   4
+#define LAST_BALL_WIN_DX   4
 
 #define sHide  data[0]
 
@@ -3979,16 +4036,19 @@ static void SpriteCB_LastUsedBallWin(struct Sprite *sprite)
 {
     if (sprite->sHide)
     {
-        if (sprite->x != LAST_BALL_WIN_X_0)
-            sprite->x--;
+        if (sprite->x > LAST_BALL_WIN_X_0)
+            sprite->x -= LAST_BALL_WIN_DX;
 
-        if (sprite->x == LAST_BALL_WIN_X_0)
+        if (sprite->x <= LAST_BALL_WIN_X_0)
             DestroyLastUsedBallWinGfx(sprite);
     }
     else
     {
-        if (sprite->x != LAST_BALL_WIN_X_F)
-            sprite->x++;
+        if (sprite->x < LAST_BALL_WIN_X_F)
+            sprite->x += LAST_BALL_WIN_DX;
+
+        if (sprite->x > LAST_BALL_WIN_X_F)
+            sprite->x = LAST_BALL_WIN_X_F;
     }
 }
 
@@ -3996,16 +4056,19 @@ static void SpriteCB_LastUsedBall(struct Sprite *sprite)
 {
     if (sprite->sHide)
     {
-        if (sprite->x != LAST_USED_BALL_X_0)
-            sprite->x--;
+        if (sprite->x > LAST_USED_BALL_X_0)
+            sprite->x -= LAST_USED_BALL_DX;
 
-        if (sprite->x == LAST_USED_BALL_X_0)
+        if (sprite->x <= LAST_USED_BALL_X_0)
             DestroyLastUsedBallGfx(sprite);
     }
     else
     {
-        if (sprite->x != LAST_USED_BALL_X_F)
-            sprite->x++;
+        if (sprite->x < LAST_USED_BALL_X_F)
+            sprite->x += LAST_USED_BALL_DX;
+
+        if (sprite->x > LAST_USED_BALL_X_F)
+            sprite->x = LAST_USED_BALL_X_F;
     }
 }
 

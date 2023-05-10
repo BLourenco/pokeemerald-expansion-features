@@ -50,6 +50,9 @@ enum
 #define TAG_HEALTHBAR_PAL               TAG_HEALTHBAR_PLAYER1_TILE
 #define TAG_HEALTHBOX_PAL               TAG_HEALTHBOX_PLAYER1_TILE
 
+#define TAG_SHADOW_GFX                  55129
+#define TAG_SHADOW_PAL                  TAG_HEALTHBAR_PAL
+
 #define TAG_MEGA_TRIGGER_TILE           0xD777
 #define TAG_MEGA_TRIGGER_PAL            TAG_MEGA_TRIGGER_TILE
 #define TAG_ZMOVE_TRIGGER_TILE          0xD778
@@ -80,6 +83,13 @@ enum
     HEALTHBOX_STATUS_ICON,
     HEALTHBOX_SAFARI_ALL_TEXT,
     HEALTHBOX_SAFARI_BALLS_TEXT
+};
+
+enum
+{
+    RELATION_PLAYER,
+    RELATION_OPPONENT,
+    RELATION_PARTNER
 };
 
 u32 WhichBattleCoords(u32 battlerId);
