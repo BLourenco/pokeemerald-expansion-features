@@ -1040,7 +1040,7 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
     healthBarSpritePtr->subspriteMode = SUBSPRITES_IGNORE_PRIORITY;
     healthBarSpritePtr->oam.priority = 1;
 
-    CpuCopy32(GetHealthboxElementGfxPtr(HEALTHBOX_GFX_1), (void *)(OBJ_VRAM0 + healthBarSpritePtr->oam.tileNum * TILE_SIZE_4BPP), 64);
+    //CpuCopy32(GetHealthboxElementGfxPtr(HEALTHBOX_GFX_1), (void *)(OBJ_VRAM0 + healthBarSpritePtr->oam.tileNum * TILE_SIZE_4BPP), 64);
 
     gSprites[healthboxLeftSpriteId].hMain_HealthBarSpriteId = healthbarSpriteId;
     gSprites[healthboxLeftSpriteId].hMain_Battler = battlerId;
@@ -1308,25 +1308,32 @@ static void UpdateLvlInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
 static void PrintHpOnHealthbox(u32 spriteId, s16 currHp, s16 maxHp, u8 x, u8 y, u8 font, u32 textColor, u32 shadeColor, u32 bgColor, u32 rightTile, u32 leftTile)
 {
     u8 *windowTileData;
-    u32 windowId, tilesCount, healthboxTileNum;
+    u32 windowId, tilesCount;
     u8 text[28], *txtPtr;
     void *objVram = (void *)(OBJ_VRAM0) + gSprites[spriteId].oam.tileNum * TILE_SIZE_4BPP;
+    u8 rightWindowCharCount = 8; // Max chars that can fit on right sprite
 
-    // To fit 4 digit HP values we need to modify a bit the way hp is printed on Healthbox.
-    // 6 chars can fit on the right healthbox, the rest goes to the left one
+    // Create HP text string, appending currHP, '/', and maxHP.
     txtPtr = ConvertIntToDecimalStringN(text, currHp, STR_CONV_MODE_RIGHT_ALIGN, 4);
     *txtPtr++ = CHAR_SLASH;
     txtPtr = ConvertIntToDecimalStringN(txtPtr, maxHp, STR_CONV_MODE_LEFT_ALIGN, 4);
-    // Print last 6 chars on the right window
-    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(txtPtr - 8, x, y, font, textColor, shadeColor, bgColor, &windowId);
-    HpTextIntoHealthboxObject(objVram + rightTile, windowTileData, 5);
+
+    // Print on the right window
+    if (maxHp >= 100)
+        x += 0, tilesCount = 5;
+    else if (maxHp >= 10)
+        x -= 8, tilesCount = 4, rightTile += 32;
+    else
+        x -= 23, tilesCount = 2, rightTile += 96;
+    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(txtPtr - rightWindowCharCount, x, y, font, textColor, shadeColor, bgColor, &windowId);
+    HpTextIntoHealthboxObject(objVram + rightTile, windowTileData, tilesCount);
     RemoveWindowOnHealthbox(windowId);
+    txtPtr[-rightWindowCharCount] = EOS;
+
     // Print the rest of the chars on the left window
-    txtPtr[-8] = EOS;
-    // if max hp is 3 digits print on block closer to the right window, if 4 digits print further from the right window
     if (maxHp >= 1000)
     {
-        x += 3, tilesCount = 1, leftTile += 64;
+        x += 3, tilesCount = 1;
         windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(text, x, y, font, textColor, shadeColor, bgColor, &windowId);
         HpTextIntoHealthboxObject(objVram + leftTile, windowTileData, tilesCount);
         RemoveWindowOnHealthbox(windowId);
@@ -1336,26 +1343,29 @@ static void PrintHpOnHealthbox(u32 spriteId, s16 currHp, s16 maxHp, u8 x, u8 y, 
 static void PrintHpOnHealthbar(u32 spriteId, s16 currHp, s16 maxHp, u8 x, u8 y, u8 font, u32 textColor, u32 shadeColor, u32 bgColor, u32 rightTile, u32 leftTile)
 {
     u8 *windowTileData;
-    u32 windowId, tilesCount, healthboxTileNum;
+    u32 windowId, tilesCount;
     u8 text[28], *txtPtr;
     void *objVram = (void *)(OBJ_VRAM0) + gSprites[spriteId].oam.tileNum * TILE_SIZE_4BPP;
+    u8 rightWindowCharCount = 4; // Max chars that can fit on right sprite
 
-    // To fit 4 digit HP values we need to modify a bit the way hp is printed on Healthbox.
-    // 6 chars can fit on the right healthbox, the rest goes to the left one
+    // Create HP text string, appending currHP, '/', and maxHP.
     txtPtr = ConvertIntToDecimalStringN(text, currHp, STR_CONV_MODE_RIGHT_ALIGN, 4);
     *txtPtr++ = CHAR_SLASH;
     txtPtr = ConvertIntToDecimalStringN(txtPtr, maxHp, STR_CONV_MODE_LEFT_ALIGN, 4);
-    // Print last 6 chars on the right window
-    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(txtPtr - 4, x, y, font, textColor, shadeColor, bgColor, &windowId);
-    HpTextIntoHealthboxObject(objVram + rightTile, windowTileData, 4);
+
+    // Print on the right window
+    windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(txtPtr - rightWindowCharCount, x, y, font, textColor, shadeColor, bgColor, &windowId);
+    HpTextIntoHealthboxObject(objVram + rightTile, windowTileData, 3);
     RemoveWindowOnHealthbox(windowId);
+    txtPtr[-rightWindowCharCount] = EOS;
+
     // Print the rest of the chars on the left window
-    txtPtr[-4] = EOS;
-    // if max hp is 3 digits print on block closer to the right window, if 4 digits print further from the right window
     if (maxHp >= 1000)
-        x += 13, tilesCount = 5, leftTile -= 64;
+        x += 7, tilesCount = 4;
+    else if (maxHp >= 100)
+        x -= 4, tilesCount = 2, leftTile += 64;
     else
-        x += 1, tilesCount = 3;
+        x -= 7, tilesCount = 1, leftTile += 96;
     windowTileData = AddTextPrinterAndCreateWindowOnHealthbox(text, x, y, font, textColor, shadeColor, bgColor, &windowId);
     HpTextIntoHealthboxObject(objVram + leftTile, windowTileData, tilesCount);
     RemoveWindowOnHealthbox(windowId);
@@ -1445,7 +1455,7 @@ void UpdateHpTextInHealthbox(u32 healthboxSpriteId, u32 maxOrCurrent, s16 currHp
     {
         if (GetBattlerSide(battlerId) == B_SIDE_PLAYER) // Player
         {
-            PrintHpOnHealthbox(healthboxSpriteId, currHp, maxHp, 0, 5, FONT_SMALL, 2, 1, 6, 0xB00, 0x3A0);
+            PrintHpOnHealthbox(healthboxSpriteId, currHp, maxHp, 0, 5, FONT_SMALL, 2, 1, 6, 0xB00, 0x3E0);
         }
         else // Opponent
         {
@@ -1463,7 +1473,7 @@ static void UpdateHpTextInHealthboxInDoubles(u32 healthboxSpriteId, u32 maxOrCur
     {
         if (gBattleSpritesDataPtr->battlerData[gSprites[healthboxSpriteId].data[6]].hpNumbersNoBars) // don't print text if only bars are visible
         {
-            PrintHpOnHealthbar(barSpriteId, currHp, maxHp, 0, 4, FONT_SMALL, 2, 5, 0, 0x80, 0x20); // Colors use HP Bar Palette
+            PrintHpOnHealthbar(barSpriteId, currHp, maxHp, 0, 4, FONT_SMALL, 2, 5, 0, 0x80, 0); // Colors use HP Bar Palette
             // Clears the end of the healthbar gfx.
             // CpuCopy32(GetHealthboxElementGfxPtr(HEALTHBOX_GFX_FRAME_END),
             //               (void *)(OBJ_VRAM0 + 0x680) + (gSprites[healthboxSpriteId].oam.tileNum * TILE_SIZE_4BPP),
