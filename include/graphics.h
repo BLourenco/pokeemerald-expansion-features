@@ -9143,6 +9143,7 @@ extern const u16 gBattleInterface_BallDisplayPal[];
 extern const u8 gBattleInterface_StatusGfxTable[][32];
 extern const u8 gBattleInterface_IndicatorsGfxTable[][32];
 extern const u16 gBattleInterface_IndicatorsPal[];
+extern const u16 gBattleInterface_PopUpPal[];
 extern const u8 gHealthboxElementsGfxTable[][32];
 
 extern const u16 gNamingScreenMenu_Pal[6][16];

@@ -113,11 +113,11 @@ static const u32 sZMoveTriggerGfx[] = INCBIN_U32("graphics/battle_interface/z_mo
 static const u16 sZMoveTriggerPal[] = INCBIN_U16("graphics/battle_interface/z_move_trigger.gbapal");
 
 static const struct CompressedSpriteSheet sSpriteSheet_ZMoveTrigger = {
-    sZMoveTriggerGfx, (32 * 32) / 2, TAG_ZMOVE_TRIGGER_TILE
+    sZMoveTriggerGfx, (32 * 32) / 2, TAG_TRIGGER_SYMBOL_ZMOVE_TILE
 };
 
 static const struct SpritePalette sSpritePalette_ZMoveTrigger = {
-    sZMoveTriggerPal, TAG_ZMOVE_TRIGGER_PAL
+    sZMoveTriggerPal, TAG_TRIGGER_SYMBOL_ZMOVE_PAL
 };
 
 static const struct OamData sOamData_ZMoveTrigger =
@@ -131,8 +131,8 @@ static const struct OamData sOamData_ZMoveTrigger =
 
 static const struct SpriteTemplate sSpriteTemplate_ZMoveTrigger =
 {
-    .tileTag = TAG_ZMOVE_TRIGGER_TILE,
-    .paletteTag = TAG_ZMOVE_TRIGGER_PAL,
+    .tileTag = TAG_TRIGGER_SYMBOL_ZMOVE_TILE,
+    .paletteTag = TAG_TRIGGER_SYMBOL_ZMOVE_PAL,
     .oam = &sOamData_ZMoveTrigger,
     .anims = gDummySpriteAnimTable,
     .images = NULL,
@@ -271,7 +271,7 @@ void CreateZMoveTriggerSprite(u8 battlerId, bool8 viable)
     s16 x, y;
 
     LoadSpritePalette(&sSpritePalette_ZMoveTrigger);
-    if (GetSpriteTileStartByTag(TAG_ZMOVE_TRIGGER_TILE) == 0xFFFF)
+    if (GetSpriteTileStartByTag(TAG_TRIGGER_SYMBOL_ZMOVE_TILE) == 0xFFFF)
         LoadCompressedSpriteSheetUsingHeap(&sSpriteSheet_ZMoveTrigger);
 
     if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
@@ -345,9 +345,9 @@ static void SpriteCB_ZMoveTrigger(struct Sprite *sprite)
 
 bool32 IsZMoveTriggerSpriteActive(void)
 {
-    if (GetSpriteTileStartByTag(TAG_ZMOVE_TRIGGER_TILE) == 0xFFFF)
+    if (GetSpriteTileStartByTag(TAG_TRIGGER_SYMBOL_ZMOVE_TILE) == 0xFFFF)
         return FALSE;
-    else if (IndexOfSpritePaletteTag(TAG_ZMOVE_TRIGGER_PAL) != 0xFF)
+    else if (IndexOfSpritePaletteTag(TAG_TRIGGER_SYMBOL_ZMOVE_PAL) != 0xFF)
         return TRUE;
     else
         return FALSE;
@@ -369,8 +369,8 @@ static void ShowZMoveTriggerSprite(u8 battlerId)
 
 void DestroyZMoveTriggerSprite(void)
 {
-    FreeSpritePaletteByTag(TAG_ZMOVE_TRIGGER_PAL);
-    FreeSpriteTilesByTag(TAG_ZMOVE_TRIGGER_TILE);
+    FreeSpritePaletteByTag(TAG_TRIGGER_SYMBOL_ZMOVE_PAL);
+    FreeSpriteTilesByTag(TAG_TRIGGER_SYMBOL_ZMOVE_TILE);
     if (gBattleStruct->zmove.triggerSpriteId != 0xFF)
         DestroySprite(&gSprites[gBattleStruct->zmove.triggerSpriteId]);
 

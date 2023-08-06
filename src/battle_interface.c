@@ -224,7 +224,8 @@ static void SpriteCB_StatusSummaryBalls_Enter(struct Sprite *);
 static void SpriteCB_StatusSummaryBalls_Exit(struct Sprite *);
 static void SpriteCB_StatusSummaryBalls_OnSwitchout(struct Sprite *);
 
-static void SpriteCb_MegaTrigger(struct Sprite *);
+static void SpriteCb_TriggerPopUp(struct Sprite *);
+static void SpriteCB_TriggerSymbolEffect(struct Sprite *);
 static void Indicator_SetVisibility(u32 healthboxId, bool32 invisible);
 static void Indicator_CreateSprite(u32 battlerId, u32 healthboxSpriteId);
 static void Indicator_UpdateOamPriorities(u32 healthboxId, u32 oamPriority);
@@ -714,64 +715,6 @@ const struct SpriteTemplate gSpriteTemplate_EnemyShadow =
     .images = NULL,
     .affineAnims = gDummySpriteAffineAnimTable,
     .callback = SpriteCB_SetInvisible
-};
-
-static const u8 ALIGNED(4) sMegaTriggerGfx[] = INCBIN_U8("graphics/battle_interface/mega_trigger.4bpp");
-static const u16 sMegaTriggerPal[] = INCBIN_U16("graphics/battle_interface/mega_trigger.gbapal");
-
-static const struct SpriteSheet sSpriteSheet_MegaTrigger =
-{
-    sMegaTriggerGfx, sizeof(sMegaTriggerGfx), TAG_MEGA_TRIGGER_TILE
-};
-static const struct SpritePalette sSpritePalette_MegaTrigger =
-{
-    sMegaTriggerPal, TAG_MEGA_TRIGGER_PAL
-};
-
-static const struct OamData sOamData_MegaTrigger =
-{
-    .y = 0,
-    .affineMode = 0,
-    .objMode = 0,
-    .mosaic = 0,
-    .bpp = 0,
-    .shape = ST_OAM_SQUARE,
-    .x = 0,
-    .matrixNum = 0,
-    .size = 2,
-    .tileNum = 0,
-    .priority = 1,
-    .paletteNum = 0,
-    .affineParam = 0,
-};
-
-static const union AnimCmd sSpriteAnim_MegaTriggerOff[] =
-{
-    ANIMCMD_FRAME(0, 0),
-    ANIMCMD_END
-};
-
-static const union AnimCmd sSpriteAnim_MegaTriggerOn[] =
-{
-    ANIMCMD_FRAME(16, 0),
-    ANIMCMD_END
-};
-
-static const union AnimCmd *const sSpriteAnimTable_MegaTrigger[] =
-{
-    sSpriteAnim_MegaTriggerOff,
-    sSpriteAnim_MegaTriggerOn,
-};
-
-static const struct SpriteTemplate sSpriteTemplate_MegaTrigger =
-{
-    .tileTag = TAG_MEGA_TRIGGER_TILE,
-    .paletteTag = TAG_MEGA_TRIGGER_PAL,
-    .oam = &sOamData_MegaTrigger,
-    .anims = sSpriteAnimTable_MegaTrigger,
-    .images = NULL,
-    .affineAnims = gDummySpriteAffineAnimTable,
-    .callback = SpriteCb_MegaTrigger
 };
 
 static const struct OamData sOamData_MoveTypeSymbols =
@@ -1619,76 +1562,258 @@ void SwapHpBarsWithHpText(void)
     }
 }
 
+static const u32 sTriggerPopUpGfx[] = INCBIN_U32("graphics/battle_interface/trigger_pop_up.4bpp"); // Uses Ability pop-up palette
+
+static const u8 ALIGNED(4) sTriggerSymbolMegaGfx[] = INCBIN_U8("graphics/battle_interface/trigger_symbol_mega.4bpp");
+static const u16 sTriggerSymbolMegaPal[] = INCBIN_U16("graphics/battle_interface/trigger_symbol_mega.gbapal");
+
+static const u32 sTriggerMega_FlamesGfx[] = INCBIN_U32("graphics/battle_interface/trigger_mega_effect.4bpp.lz");
+static const u16 sTriggerMega_FlamesPal[] = INCBIN_U16("graphics/battle_interface/trigger_mega_effect.gbapal");
+
+static const struct SpriteSheet sSpriteSheet_TriggerPopUp =
+{
+    sTriggerPopUpGfx, sizeof(sTriggerPopUpGfx), TAG_TRIGGER_POP_UP_TILE
+};
+
+static const struct OamData sOamData_TriggerPopUp =
+{
+    .y = 0,
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(32x16),
+    .x = 0,
+    .size = SPRITE_SIZE(32x16),
+    .tileNum = 0,
+    .priority = 3,
+    .paletteNum = 0,
+};
+
+static const struct SpriteTemplate sSpriteTemplate_TriggerPopUp =
+{
+    .tileTag = TAG_TRIGGER_POP_UP_TILE,
+    .paletteTag = TAG_POP_UP_PAL,
+    .oam = &sOamData_TriggerPopUp,
+    .anims = gDummySpriteAnimTable,
+    .images = NULL,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCb_TriggerPopUp
+};
+
+static const struct SpriteSheet sSpriteSheet_TriggerSymbolMega =
+{
+    sTriggerSymbolMegaGfx, sizeof(sTriggerSymbolMegaGfx), TAG_TRIGGER_SYMBOL_MEGA_TILE
+};
+static const struct SpritePalette sSpritePalette_TriggerSymbolMega =
+{
+    sTriggerSymbolMegaPal, TAG_TRIGGER_SYMBOL_MEGA_PAL
+};
+
+static const union AnimCmd sSpriteAnim_TriggerSymbolMegaOff[] =
+{
+    ANIMCMD_FRAME(0, 0),
+    ANIMCMD_END
+};
+
+static const union AnimCmd sSpriteAnim_TriggerSymbolMegaOn[] =
+{
+    ANIMCMD_FRAME(16, 0),
+    ANIMCMD_END
+};
+
+static const union AnimCmd *const sSpriteAnimTable_TriggerSymbolMega[] =
+{
+    sSpriteAnim_TriggerSymbolMegaOff,
+    sSpriteAnim_TriggerSymbolMegaOn,
+};
+
+static const struct OamData sOamData_TriggerSymbolMega =
+{
+    .y = 0,
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(32x32),
+    .x = 0,
+    .size = SPRITE_SIZE(32x32),
+    .tileNum = 0,
+    .priority = 2,
+    .paletteNum = 0,
+};
+
+static const struct SpriteTemplate sSpriteTemplate_TriggerSymbolMega =
+{
+    .tileTag = TAG_TRIGGER_SYMBOL_MEGA_TILE,
+    .paletteTag = TAG_TRIGGER_SYMBOL_MEGA_PAL,
+    .oam = &sOamData_TriggerSymbolMega,
+    .anims = sSpriteAnimTable_TriggerSymbolMega,
+    .images = NULL,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCb_TriggerPopUp
+};
+
+#define ANIM_TAG_TRIGGER_MEGA_FLAMES 51000
+
+static const struct CompressedSpriteSheet sTriggerMegaFlamesSpriteSheet[] =
+{
+    {
+        sTriggerMega_FlamesGfx, 0x800, ANIM_TAG_TRIGGER_MEGA_FLAMES
+    }
+};
+static const struct SpritePalette sTriggerMegaFlamesPal[] =
+{
+    {
+        sTriggerMega_FlamesPal, ANIM_TAG_TRIGGER_MEGA_FLAMES
+    },
+    {}
+};
+
+static const struct OamData sTriggerMegaFlamesSpriteOam =
+{
+    .y = 0,
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(16x32),
+    .x = 0,
+    .size = SPRITE_SIZE(16x32),
+    .tileNum = 0,
+    .priority = 2,
+    .paletteNum = 0,
+};
+
+#define FLAMES_ANIM_SPEED 4
+
+static const union AnimCmd sTriggerMegaFlamesAnimCmds[] =
+{
+    ANIMCMD_FRAME(0, FLAMES_ANIM_SPEED),
+    ANIMCMD_FRAME(8, FLAMES_ANIM_SPEED),
+    ANIMCMD_FRAME(16, FLAMES_ANIM_SPEED),
+    ANIMCMD_FRAME(24, FLAMES_ANIM_SPEED),
+    ANIMCMD_FRAME(32, FLAMES_ANIM_SPEED),
+    ANIMCMD_FRAME(40, FLAMES_ANIM_SPEED),
+    ANIMCMD_FRAME(48, FLAMES_ANIM_SPEED),
+    ANIMCMD_FRAME(56, FLAMES_ANIM_SPEED),
+    ANIMCMD_JUMP(0)
+};
+
+static const union AnimCmd *const sTriggerMegaFlamesAnimTable[] =
+{
+    sTriggerMegaFlamesAnimCmds,
+};
+
+static const struct SpriteTemplate sTriggerMegaFlamesSpriteTemplate =
+{
+    .tileTag = ANIM_TAG_TRIGGER_MEGA_FLAMES,
+    .paletteTag = ANIM_TAG_TRIGGER_MEGA_FLAMES,
+    .oam = &sTriggerMegaFlamesSpriteOam,
+    .anims = sTriggerMegaFlamesAnimTable,
+    .images = NULL,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCB_TriggerSymbolEffect
+};
+
+#define SINGLES_TRIGGER_POP_UP_POS_X_OPTIMAL (33)
+#define SINGLES_TRIGGER_POP_UP_POS_X_SLIDE (13)
+#define SINGLES_TRIGGER_POP_UP_POS_Y_DIFF (-3)
+
+#define DOUBLES_TRIGGER_POP_UP_POS_X_OPTIMAL (33)
+#define DOUBLES_TRIGGER_POP_UP_POS_X_SLIDE (13)
+#define DOUBLES_TRIGGER_POP_UP_POS_Y_DIFF (-3)
+
+#define TRIGGER_SLIDE_SPEED 4
+
+#define tBattler                     data[0]
+#define tHide                        data[1]
+#define tTriggerPopUpSpriteId        data[2]
+#define tTriggerSymbolEffectSpriteId data[3]
+
+void CreateTriggerPopUp(u8 battlerId, u8 triggerSpriteId)
+{
+    u8 triggerPopUpSpriteId;
+    if (GetSpriteTileStartByTag(TAG_TRIGGER_POP_UP_TILE) == 0xFFFF)
+        LoadSpriteSheet(&sSpriteSheet_TriggerPopUp);
+
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+        triggerPopUpSpriteId = CreateSprite(
+                                &sSpriteTemplate_TriggerPopUp,
+                                gSprites[gHealthboxSpriteIds[battlerId]].x - DOUBLES_TRIGGER_POP_UP_POS_X_SLIDE,
+                                gSprites[gHealthboxSpriteIds[battlerId]].y - DOUBLES_TRIGGER_POP_UP_POS_Y_DIFF, 0);
+    else
+        triggerPopUpSpriteId = CreateSprite(
+                                &sSpriteTemplate_TriggerPopUp,
+                                gSprites[gHealthboxSpriteIds[battlerId]].x - SINGLES_TRIGGER_POP_UP_POS_X_SLIDE,
+                                gSprites[gHealthboxSpriteIds[battlerId]].y - SINGLES_TRIGGER_POP_UP_POS_Y_DIFF, 0);
+                                    
+    gSprites[triggerSpriteId].tBattler = battlerId;
+    gSprites[triggerSpriteId].tHide = FALSE;
+    gSprites[triggerSpriteId].tTriggerPopUpSpriteId = triggerPopUpSpriteId;
+}
+
 // Mega Evolution Trigger icon functions.
 void ChangeMegaTriggerSprite(u8 spriteId, u8 animId)
 {
     StartSpriteAnim(&gSprites[spriteId], animId);
+    gSprites[gSprites[spriteId].tTriggerSymbolEffectSpriteId].invisible = !animId;
 }
 
-#define SINGLES_MEGA_TRIGGER_POS_X_OPTIMAL (30)
-#define SINGLES_MEGA_TRIGGER_POS_X_PRIORITY (31)
-#define SINGLES_MEGA_TRIGGER_POS_X_SLIDE (15)
-#define SINGLES_MEGA_TRIGGER_POS_Y_DIFF (-11)
-
-#define DOUBLES_MEGA_TRIGGER_POS_X_OPTIMAL (30)
-#define DOUBLES_MEGA_TRIGGER_POS_X_PRIORITY (31)
-#define DOUBLES_MEGA_TRIGGER_POS_X_SLIDE (15)
-#define DOUBLES_MEGA_TRIGGER_POS_Y_DIFF (-4)
-
-#define tBattler    data[0]
-#define tHide       data[1]
-
-void CreateMegaTriggerSprite(u8 battlerId, u8 palId)
+void CreateMegaTriggerSprite(u8 battlerId)
 {
-    LoadSpritePalette(&sSpritePalette_MegaTrigger);
-    if (GetSpriteTileStartByTag(TAG_MEGA_TRIGGER_TILE) == 0xFFFF)
-        LoadSpriteSheet(&sSpriteSheet_MegaTrigger);
+    LoadSpritePalette(&sSpritePalette_TriggerSymbolMega);
+    if (GetSpriteTileStartByTag(TAG_TRIGGER_SYMBOL_MEGA_TILE) == 0xFFFF)
+        LoadSpriteSheet(&sSpriteSheet_TriggerSymbolMega);
+
     if (gBattleStruct->mega.triggerSpriteId == 0xFF)
     {
         if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
-            gBattleStruct->mega.triggerSpriteId = CreateSprite(&sSpriteTemplate_MegaTrigger,
-                                                             gSprites[gHealthboxSpriteIds[battlerId]].x - DOUBLES_MEGA_TRIGGER_POS_X_SLIDE,
-                                                             gSprites[gHealthboxSpriteIds[battlerId]].y - DOUBLES_MEGA_TRIGGER_POS_Y_DIFF, 0);
+            gBattleStruct->mega.triggerSpriteId = CreateSprite(&sSpriteTemplate_TriggerSymbolMega,
+                                                             gSprites[gHealthboxSpriteIds[battlerId]].x - DOUBLES_TRIGGER_POP_UP_POS_X_SLIDE,
+                                                             gSprites[gHealthboxSpriteIds[battlerId]].y - DOUBLES_TRIGGER_POP_UP_POS_Y_DIFF, 0);
         else
-            gBattleStruct->mega.triggerSpriteId = CreateSprite(&sSpriteTemplate_MegaTrigger,
-                                                             gSprites[gHealthboxSpriteIds[battlerId]].x - SINGLES_MEGA_TRIGGER_POS_X_SLIDE,
-                                                             gSprites[gHealthboxSpriteIds[battlerId]].y - SINGLES_MEGA_TRIGGER_POS_Y_DIFF, 0);
+            gBattleStruct->mega.triggerSpriteId = CreateSprite(&sSpriteTemplate_TriggerSymbolMega,
+                                                             gSprites[gHealthboxSpriteIds[battlerId]].x - SINGLES_TRIGGER_POP_UP_POS_X_SLIDE,
+                                                             gSprites[gHealthboxSpriteIds[battlerId]].y - SINGLES_TRIGGER_POP_UP_POS_Y_DIFF, 0);                                                             
+
+        // Create pop-up background
+        CreateTriggerPopUp(battlerId, gBattleStruct->mega.triggerSpriteId);
+        
+        // Create flames
+        LoadCompressedSpriteSheet(&sTriggerMegaFlamesSpriteSheet[0]);
+        LoadSpritePalette(&sTriggerMegaFlamesPal[0]);
+        u8 spriteId = CreateSprite(&sTriggerMegaFlamesSpriteTemplate, 123, 78, 0);
+        gSprites[gBattleStruct->mega.triggerSpriteId].tTriggerSymbolEffectSpriteId = spriteId;
     }
     gSprites[gBattleStruct->mega.triggerSpriteId].tBattler = battlerId;
     gSprites[gBattleStruct->mega.triggerSpriteId].tHide = FALSE;
 
-    ChangeMegaTriggerSprite(gBattleStruct->mega.triggerSpriteId, palId);
+    // Set animation
+    ChangeMegaTriggerSprite(gBattleStruct->mega.triggerSpriteId, 0);
 }
 
-static void SpriteCb_MegaTrigger(struct Sprite *sprite)
+static void SpriteCb_TriggerPopUp(struct Sprite *sprite)
 {
-    s32 xSlide, xPriority, xOptimal;
+    s32 xSlide, xOptimal;
     s32 yDiff;
 
     if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
     {
-        xSlide = DOUBLES_MEGA_TRIGGER_POS_X_SLIDE;
-        xPriority = DOUBLES_MEGA_TRIGGER_POS_X_PRIORITY;
-        xOptimal = DOUBLES_MEGA_TRIGGER_POS_X_OPTIMAL;
-        yDiff = DOUBLES_MEGA_TRIGGER_POS_Y_DIFF;
+        xSlide = DOUBLES_TRIGGER_POP_UP_POS_X_SLIDE;
+        xOptimal = DOUBLES_TRIGGER_POP_UP_POS_X_OPTIMAL;
+        yDiff = DOUBLES_TRIGGER_POP_UP_POS_Y_DIFF;
     }
     else
     {
-        xSlide = SINGLES_MEGA_TRIGGER_POS_X_SLIDE;
-        xPriority = SINGLES_MEGA_TRIGGER_POS_X_PRIORITY;
-        xOptimal = SINGLES_MEGA_TRIGGER_POS_X_OPTIMAL;
-        yDiff = SINGLES_MEGA_TRIGGER_POS_Y_DIFF;
+        xSlide = SINGLES_TRIGGER_POP_UP_POS_X_SLIDE;
+        xOptimal = SINGLES_TRIGGER_POP_UP_POS_X_OPTIMAL;
+        yDiff = SINGLES_TRIGGER_POP_UP_POS_Y_DIFF;
     }
 
     if (sprite->tHide)
     {
-        if (sprite->x != gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xSlide)
-            sprite->x++;
-
-        if (sprite->x >= gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xPriority)
-            sprite->oam.priority = 2;
+        if (sprite->x < gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xSlide)
+            sprite->x += TRIGGER_SLIDE_SPEED;
         else
-            sprite->oam.priority = 1;
+            sprite->x = gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xSlide;
 
         sprite->y = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y - yDiff;
         sprite->y2 = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y2 - yDiff;
@@ -1697,24 +1822,28 @@ static void SpriteCb_MegaTrigger(struct Sprite *sprite)
     }
     else
     {
-        if (sprite->x != gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xOptimal)
-            sprite->x--;
-
-        if (sprite->x >= gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xPriority)
-            sprite->oam.priority = 2;
+        if (sprite->x > gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xOptimal)
+            sprite->x -= TRIGGER_SLIDE_SPEED;
         else
-            sprite->oam.priority = 1;
+            sprite->x = gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - xOptimal;
 
         sprite->y = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y - yDiff;
         sprite->y2 = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y2 - yDiff;
     }
 }
 
+static void SpriteCB_TriggerSymbolEffect(struct Sprite *sprite)
+{
+    sprite->x = gSprites[gHealthboxSpriteIds[sprite->tBattler]].x - 33;
+    sprite->y = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y - 5;
+    sprite->y2 = gSprites[gHealthboxSpriteIds[sprite->tBattler]].y2 - 5;
+}
+
 bool32 IsMegaTriggerSpriteActive(void)
 {
-    if (GetSpriteTileStartByTag(TAG_MEGA_TRIGGER_TILE) == 0xFFFF)
+    if (GetSpriteTileStartByTag(TAG_TRIGGER_SYMBOL_MEGA_TILE) == 0xFFFF)
         return FALSE;
-    else if (IndexOfSpritePaletteTag(TAG_MEGA_TRIGGER_PAL) != 0xFF)
+    else if (IndexOfSpritePaletteTag(TAG_TRIGGER_SYMBOL_MEGA_PAL) != 0xFF)
         return TRUE;
     else
         return FALSE;
@@ -1726,6 +1855,7 @@ void HideMegaTriggerSprite(void)
     {
         ChangeMegaTriggerSprite(gBattleStruct->mega.triggerSpriteId, 0);
         gSprites[gBattleStruct->mega.triggerSpriteId].tHide = TRUE;
+        gSprites[gSprites[gBattleStruct->mega.triggerSpriteId].tTriggerPopUpSpriteId].tHide = TRUE;
     }
 }
 
@@ -1736,16 +1866,28 @@ void HideTriggerSprites(void)
 }
 
 void DestroyMegaTriggerSprite(void)
-{
-    FreeSpritePaletteByTag(TAG_MEGA_TRIGGER_PAL);
-    FreeSpriteTilesByTag(TAG_MEGA_TRIGGER_TILE);
+{    
+    FreeSpriteTilesByTag(TAG_TRIGGER_POP_UP_TILE);
+
+    FreeSpritePaletteByTag(ANIM_TAG_TRIGGER_MEGA_FLAMES);
+    FreeSpriteTilesByTag(ANIM_TAG_TRIGGER_MEGA_FLAMES);
+
+    FreeSpritePaletteByTag(TAG_TRIGGER_SYMBOL_MEGA_PAL);
+    FreeSpriteTilesByTag(TAG_TRIGGER_SYMBOL_MEGA_TILE);
     if (gBattleStruct->mega.triggerSpriteId != 0xFF)
+    {
+        DestroySprite(&gSprites[gSprites[gBattleStruct->mega.triggerSpriteId].tTriggerPopUpSpriteId]);
+        DestroySprite(&gSprites[gSprites[gBattleStruct->mega.triggerSpriteId].tTriggerSymbolEffectSpriteId]);
         DestroySprite(&gSprites[gBattleStruct->mega.triggerSpriteId]);
+    }
+        
     gBattleStruct->mega.triggerSpriteId = 0xFF;
 }
 
 #undef tBattler
 #undef tHide
+#undef tTriggerPopUpSpriteId
+#undef tTriggerSymbolEffectSpriteId
 
 // for sprite data fields
 #define tBattler        data[0]
@@ -3329,10 +3471,6 @@ static void SafariTextIntoHealthboxObject(void *dest, u8 *windowTileData, u32 wi
     CpuCopy32(windowTileData + 256, dest + 256, windowWidth * TILE_SIZE_4BPP);
 }
 
-#define ABILITY_POP_UP_TAG          0xD720
-#define ABILITY_POP_UP_OPPONENT_TAG 0xD721
-#define ABILITY_POP_UP_PARTNER_TAG  0xD722
-
 // for sprite
 #define tOriginalX      data[0]
 #define tHide           data[1]
@@ -3348,23 +3486,18 @@ static void SafariTextIntoHealthboxObject(void *dest, u8 *windowTileData, u32 wi
 static const u8 ALIGNED(4) sAbilityPopUpGfx[] = INCBIN_U8("graphics/battle_interface/ability_pop_up.4bpp");
 static const u8 ALIGNED(4) sAbilityPopUpOpponentGfx[] = INCBIN_U8("graphics/battle_interface/ability_pop_up_opponent.4bpp");
 static const u8 ALIGNED(4) sAbilityPopUpPartnerGfx[] = INCBIN_U8("graphics/battle_interface/ability_pop_up_partner.4bpp");
-static const u16 sAbilityPopUpPalette[] = INCBIN_U16("graphics/battle_interface/ability_pop_up.gbapal");
 
 static const struct SpriteSheet sSpriteSheet_AbilityPopUp =
 {
-    sAbilityPopUpGfx, sizeof(sAbilityPopUpGfx), ABILITY_POP_UP_TAG
+    sAbilityPopUpGfx, sizeof(sAbilityPopUpGfx), TAG_ABILITY_POP_UP_TILE
 };
 static const struct SpriteSheet sSpriteSheet_AbilityPopUpOpponent =
 {
-    sAbilityPopUpOpponentGfx, sizeof(sAbilityPopUpOpponentGfx), ABILITY_POP_UP_OPPONENT_TAG
+    sAbilityPopUpOpponentGfx, sizeof(sAbilityPopUpOpponentGfx), TAG_ABILITY_POP_UP_OPPONENT_TILE
 };
 static const struct SpriteSheet sSpriteSheet_AbilityPopUpPartner =
 {
-    sAbilityPopUpPartnerGfx, sizeof(sAbilityPopUpPartnerGfx), ABILITY_POP_UP_PARTNER_TAG
-};
-static const struct SpritePalette sSpritePalette_AbilityPopUp =
-{
-    sAbilityPopUpPalette, ABILITY_POP_UP_TAG
+    sAbilityPopUpPartnerGfx, sizeof(sAbilityPopUpPartnerGfx), TAG_ABILITY_POP_UP_PARTNER_TILE
 };
 
 static const struct OamData sOamData_AbilityPopUp =
@@ -3378,8 +3511,8 @@ static const struct OamData sOamData_AbilityPopUp =
 
 static const struct SpriteTemplate sSpriteTemplate_AbilityPopUp =
 {
-    .tileTag = ABILITY_POP_UP_TAG,
-    .paletteTag = ABILITY_POP_UP_TAG,
+    .tileTag = TAG_ABILITY_POP_UP_TILE,
+    .paletteTag = TAG_POP_UP_PAL,
     .oam = &sOamData_AbilityPopUp,
     .anims = gDummySpriteAnimTable,
     .images = NULL,
@@ -3389,8 +3522,8 @@ static const struct SpriteTemplate sSpriteTemplate_AbilityPopUp =
 
 static const struct SpriteTemplate sSpriteTemplate_AbilityPopUpOpponent =
 {
-    .tileTag = ABILITY_POP_UP_OPPONENT_TAG,
-    .paletteTag = ABILITY_POP_UP_TAG,
+    .tileTag = TAG_ABILITY_POP_UP_OPPONENT_TILE,
+    .paletteTag = TAG_POP_UP_PAL,
     .oam = &sOamData_AbilityPopUp,
     .anims = gDummySpriteAnimTable,
     .images = NULL,
@@ -3400,8 +3533,8 @@ static const struct SpriteTemplate sSpriteTemplate_AbilityPopUpOpponent =
 
 static const struct SpriteTemplate sSpriteTemplate_AbilityPopUpPartner =
 {
-    .tileTag = ABILITY_POP_UP_PARTNER_TAG,
-    .paletteTag = ABILITY_POP_UP_TAG,
+    .tileTag = TAG_ABILITY_POP_UP_PARTNER_TILE,
+    .paletteTag = TAG_POP_UP_PAL,
     .oam = &sOamData_AbilityPopUp,
     .anims = gDummySpriteAnimTable,
     .images = NULL,
@@ -3723,7 +3856,6 @@ void CreateAbilityPopUp(u8 battlerId, u32 ability, bool32 isDoubleBattle)
         {
             LoadSpriteSheet(&sSpriteSheet_AbilityPopUpOpponent);
         }
-        LoadSpritePalette(&sSpritePalette_AbilityPopUp);
     }
 
     gBattleStruct->activeAbilityPopUps |= gBitTable[battlerId];
@@ -3886,8 +4018,8 @@ static void Task_FreeAbilityPopUpGfx(u8 taskId)
         && !gSprites[gTasks[taskId].tSpriteId2].inUse
         && !IsAbilityPopupActive(RELATION_PLAYER))
     {
-        FreeSpriteTilesByTag(ABILITY_POP_UP_TAG);
-        FreeSpritePaletteByTag(ABILITY_POP_UP_TAG);
+        FreeSpriteTilesByTag(TAG_ABILITY_POP_UP_TILE);
+        //FreeSpritePaletteByTag(TAG_POP_UP_PAL);
         DestroyTask(taskId);
     }
 }
@@ -3898,8 +4030,8 @@ static void Task_FreeAbilityPopUpOpponentGfx(u8 taskId)
         && !gSprites[gTasks[taskId].tSpriteId2].inUse
         && !IsAbilityPopupActive(RELATION_OPPONENT))
     {
-        FreeSpriteTilesByTag(ABILITY_POP_UP_OPPONENT_TAG);
-        FreeSpritePaletteByTag(ABILITY_POP_UP_TAG);
+        FreeSpriteTilesByTag(TAG_ABILITY_POP_UP_OPPONENT_TILE);
+        //FreeSpritePaletteByTag(TAG_POP_UP_PAL);
         DestroyTask(taskId);
     }
 }
@@ -3910,8 +4042,8 @@ static void Task_FreeAbilityPopUpPartnerGfx(u8 taskId)
         && !gSprites[gTasks[taskId].tSpriteId2].inUse
         && !IsAbilityPopupActive(RELATION_PARTNER))
     {
-        FreeSpriteTilesByTag(ABILITY_POP_UP_PARTNER_TAG);
-        FreeSpritePaletteByTag(ABILITY_POP_UP_TAG);
+        FreeSpriteTilesByTag(TAG_ABILITY_POP_UP_PARTNER_TILE);
+        //FreeSpritePaletteByTag(TAG_POP_UP_PAL);
         DestroyTask(taskId);
     }
 }
@@ -3939,7 +4071,7 @@ static const struct OamData sOamData_LastUsedBall =
 static const struct SpriteTemplate sSpriteTemplate_LastUsedBallWindow =
 {
     .tileTag = LAST_BALL_WINDOW_TAG,
-    .paletteTag = ABILITY_POP_UP_TAG,
+    .paletteTag = TAG_POP_UP_PAL,
     .oam = &sOamData_LastUsedBall,
     .anims = gDummySpriteAnimTable,
     .images = NULL,
@@ -4012,7 +4144,6 @@ void TryAddLastUsedBallItemSprites(void)
     }
 
     // window
-    LoadSpritePalette(&sSpritePalette_AbilityPopUp);
     if (GetSpriteTileStartByTag(LAST_BALL_WINDOW_TAG) == 0xFFFF)
         LoadSpriteSheet(&sSpriteSheet_LastUsedBallWindow);
 
@@ -4029,7 +4160,7 @@ void TryAddLastUsedBallItemSprites(void)
 static void DestroyLastUsedBallWinGfx(struct Sprite *sprite)
 {
     FreeSpriteTilesByTag(LAST_BALL_WINDOW_TAG);
-    FreeSpritePaletteByTag(ABILITY_POP_UP_TAG);
+    FreeSpritePaletteByTag(TAG_ABILITY_POP_UP_TILE);
     DestroySprite(sprite);
     gBattleStruct->ballSpriteIds[1] = MAX_SPRITES;
 }

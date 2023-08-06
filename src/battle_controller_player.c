@@ -798,7 +798,20 @@ static void HandleInputChooseMove(void)
         {
             gBattleStruct->mega.playerSelect ^= 1;
             ChangeMegaTriggerSprite(gBattleStruct->mega.triggerSpriteId, gBattleStruct->mega.playerSelect);
-            PlaySE(SE_SELECT);
+            //PlaySE(SE_SELECT);
+            if (gBattleStruct->mega.playerSelect)
+                PlaySE(SE_DEX_PAGE);
+            else
+                PlaySE(SE_DEX_SCROLL);
+                //SE_SHINY
+                //SE_ITEMFINDER
+                //SE_DEX_SCROLL
+                //SE_DEX_PAGE
+                //SE_POKENAV_ON
+                //SE_POKENAV_OFF
+                //SE_CARD_OPEN
+                //SE_RG_POKEJUMP_SUCCESS
+                //SE_BALL_TRAY_ENTER
         }
         else if (gBattleStruct->zmove.viable)
         {
@@ -2867,7 +2880,7 @@ static void PlayerHandleChooseMove(void)
         if (!IsMegaTriggerSpriteActive())
             gBattleStruct->mega.triggerSpriteId = 0xFF;
         if (CanMegaEvolve(gActiveBattler))
-            CreateMegaTriggerSprite(gActiveBattler, 0);
+            CreateMegaTriggerSprite(gActiveBattler);
         if (!IsZMoveTriggerSpriteActive())
             gBattleStruct->zmove.triggerSpriteId = 0xFF;
 

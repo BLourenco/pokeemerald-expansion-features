@@ -694,6 +694,8 @@ const u8 gBattleInterface_IndicatorsGfxTable[] = INCBIN_U8("graphics/battle_inte
 
 const u16 gBattleInterface_IndicatorsPal[] = INCBIN_U16("graphics/battle_interface/indicators.gbapal");
 
+const u16 gBattleInterface_PopUpPal[] = INCBIN_U16("graphics/battle_interface/ability_pop_up.gbapal");
+
 const u8 gHealthboxElementsGfxTable[] = INCBIN_U8("graphics/battle_interface/hpbar.4bpp",
                                                   "graphics/battle_interface/expbar.4bpp",
                                                   "graphics/battle_interface/status.4bpp",

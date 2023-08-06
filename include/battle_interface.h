@@ -53,10 +53,16 @@ enum
 #define TAG_SHADOW_GFX                  55129
 #define TAG_SHADOW_PAL                  TAG_HEALTHBAR_PAL
 
-#define TAG_MEGA_TRIGGER_TILE           0xD777
-#define TAG_MEGA_TRIGGER_PAL            TAG_MEGA_TRIGGER_TILE
-#define TAG_ZMOVE_TRIGGER_TILE          0xD778
-#define TAG_ZMOVE_TRIGGER_PAL           TAG_ZMOVE_TRIGGER_TILE
+#define TAG_ABILITY_POP_UP_TILE          0xD720
+#define TAG_ABILITY_POP_UP_OPPONENT_TILE 0xD721
+#define TAG_ABILITY_POP_UP_PARTNER_TILE  0xD722
+#define TAG_POP_UP_PAL                   0xD723
+
+#define TAG_TRIGGER_POP_UP_TILE         0xD776
+#define TAG_TRIGGER_SYMBOL_MEGA_TILE    0xD777
+#define TAG_TRIGGER_SYMBOL_MEGA_PAL     TAG_TRIGGER_SYMBOL_MEGA_TILE
+#define TAG_TRIGGER_SYMBOL_ZMOVE_TILE   0xD778
+#define TAG_TRIGGER_SYMBOL_ZMOVE_PAL    TAG_TRIGGER_SYMBOL_ZMOVE_TILE
 
 #define TAG_INDICATOR_PLAYER1_TILE      0xD779
 #define TAG_INDICATOR_PLAYER2_TILE      0xD77A
@@ -92,6 +98,14 @@ enum
     RELATION_PARTNER
 };
 
+enum
+{
+    TRIGGER_MEGA,
+    TRIGGER_Z_MOVE,
+    TRIGGER_DYNAMAX,
+    TRIGGER_TERASTAL
+};
+
 u32 WhichBattleCoords(u32 battlerId);
 u8 CreateBattlerHealthboxSprites(u8 battler);
 u8 CreateSafariPlayerHealthboxSprites(void);
@@ -104,7 +118,7 @@ void InitBattlerHealthboxCoords(u8 battler);
 void UpdateHpTextInHealthbox(u32 healthboxSpriteId, u32 maxOrCurrent, s16 currHp, s16 maxHp);
 void SwapHpBarsWithHpText(void);
 void ChangeMegaTriggerSprite(u8 spriteId, u8 animId);
-void CreateMegaTriggerSprite(u8 battlerId, u8 palId);
+void CreateMegaTriggerSprite(u8 battlerId);
 bool32 IsMegaTriggerSpriteActive(void);
 void HideMegaTriggerSprite(void);
 void DestroyMegaTriggerSprite(void);

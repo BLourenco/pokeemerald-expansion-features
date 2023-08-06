@@ -129,6 +129,11 @@ static const struct CompressedSpriteSheet sSpriteSheet_DoublesOpponentStatus[2] 
     {gBattleInterface_StatusGfxTable, 0x40, TAG_STATUS_OPPONENT2_TILE}
 };
 
+static const struct SpritePalette sSpritePalette_PopUp =
+{
+    gBattleInterface_PopUpPal, TAG_POP_UP_PAL
+};
+
 // code
 void AllocateBattleSpritesData(void)
 {
@@ -739,7 +744,8 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
         {
             LoadSpritePalette(&sSpritePalettes_HealthBoxHealthBar[0]);
             LoadSpritePalette(&sSpritePalettes_HealthBoxHealthBar[1]);
-            LoadSpritePalette(&sIndicator_SpritePalette);
+            LoadSpritePalette(&sIndicator_SpritePalette);            
+            LoadSpritePalette(&sSpritePalette_PopUp);
             TypeSymbols_LoadSpritesGfx();
         }
         else if (!IsDoubleBattle())
