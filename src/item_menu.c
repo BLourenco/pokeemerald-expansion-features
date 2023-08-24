@@ -141,7 +141,7 @@ static void Task_BagMenu_HandleInput(u8);
 static void GetItemName(s8 *, u16);
 static void PrintItemDescription(int);
 static void BagMenu_PrintCursorAtPos(u8, u8);
-static void BagMenu_Print(u8, u8, const u8 *, u8, u8, u8, u8, u8, u8);
+static void BagMenu_Print(u8, u8, const u8 *, u8, u8, s8, s8, u8, u8);
 static void Task_CloseBagMenu(u8);
 static u8 AddItemMessageWindow(u8);
 static void RemoveItemMessageWindow(u8);
@@ -2461,7 +2461,7 @@ static void LoadBagMenuTextWindows(void)
     ScheduleBgCopyTilemapToVram(1);
 }
 
-static void BagMenu_Print(u8 windowId, u8 fontId, const u8 *str, u8 left, u8 top, u8 letterSpacing, u8 lineSpacing, u8 speed, u8 colorIndex)
+static void BagMenu_Print(u8 windowId, u8 fontId, const u8 *str, u8 left, u8 top, s8 letterSpacing, s8 lineSpacing, u8 speed, u8 colorIndex)
 {
     AddTextPrinterParameterized4(windowId, fontId, left, top, letterSpacing, lineSpacing, sFontColorTable[colorIndex], speed, str);
 }

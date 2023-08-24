@@ -88,8 +88,8 @@ static void CopyBagItemName(u8 *, u16);
 static void FreeItemIconSpriteByAltId(u8);
 static void PrintItemDescription(s32);
 static void PrintSelectorArrowAtPos(u8, u8);
-static void PyramidBagPrint(u8, const u8 *, u8, u8, u8, u8, u8, u8);
-static void PyramidBagPrint_Quantity(u8, const u8 *, u8, u8, u8, u8, u8, u8);
+static void PyramidBagPrint(u8, const u8 *, u8, u8, s8, s8, u8, u8);
+static void PyramidBagPrint_Quantity(u8, const u8 *, u8, u8, s8, s8, u8, u8);
 static u8 OpenMenuActionWindowById(u8);
 static void CloseMenuActionWindowById(u8);
 static void PrintMenuActionText_SingleRow(u8);
@@ -1452,12 +1452,12 @@ static void InitPyramidBagWindows(void)
     ScheduleBgCopyTilemapToVram(1);
 }
 
-static void PyramidBagPrint(u8 windowId, const u8 *src, u8 x, u8 y, u8 letterSpacing, u8 lineSpacing, u8 speed, u8 colorTableId)
+static void PyramidBagPrint(u8 windowId, const u8 *src, u8 x, u8 y, s8 letterSpacing, s8 lineSpacing, u8 speed, u8 colorTableId)
 {
     AddTextPrinterParameterized4(windowId, FONT_NORMAL, x, y, letterSpacing, lineSpacing, sTextColors[colorTableId], speed, src);
 }
 
-static void PyramidBagPrint_Quantity(u8 windowId, const u8 *src, u8 x, u8 y, u8 letterSpacing, u8 lineSpacing, u8 speed, u8 colorTableId)
+static void PyramidBagPrint_Quantity(u8 windowId, const u8 *src, u8 x, u8 y, s8 letterSpacing, s8 lineSpacing, u8 speed, u8 colorTableId)
 {
     AddTextPrinterParameterized4(windowId, FONT_NARROW, x, y, letterSpacing, lineSpacing, sTextColors[colorTableId], speed, src);
 }

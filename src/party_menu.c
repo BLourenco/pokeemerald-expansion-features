@@ -2516,7 +2516,7 @@ static u8 DisplaySelectionWindow(u8 windowType)
 {
     struct WindowTemplate window;
     u8 cursorDimension;
-    u8 letterSpacing;
+    s8 letterSpacing;
     u8 i;
 
     switch (windowType)

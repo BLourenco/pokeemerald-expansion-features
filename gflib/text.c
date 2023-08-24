@@ -1249,10 +1249,7 @@ static u16 RenderText(struct TextPrinter *textPrinter)
         }
         else
         {
-            if (textPrinter->japanese)
-                textPrinter->printerTemplate.currentX += (gCurGlyph.width + textPrinter->printerTemplate.letterSpacing);
-            else
-                textPrinter->printerTemplate.currentX += gCurGlyph.width;
+            textPrinter->printerTemplate.currentX += (gCurGlyph.width + textPrinter->printerTemplate.letterSpacing);
         }
         return RENDER_PRINT;
     case RENDER_STATE_WAIT:
@@ -1734,7 +1731,7 @@ void SetDefaultFontsPointer(void)
     SetFontsPointer(sFontInfos);
 }
 
-u8 GetFontAttribute(u8 fontId, u8 attributeId)
+s8 GetFontAttribute(u8 fontId, u8 attributeId)
 {
     int result = 0;
     switch (attributeId)

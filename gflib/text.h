@@ -75,8 +75,8 @@ struct TextPrinterTemplate
     u8 y;
     u8 currentX;        // 0x8
     u8 currentY;
-    u8 letterSpacing;
-    u8 lineSpacing;
+    s8 letterSpacing;
+    s8 lineSpacing;
     u8 unk:4;   // 0xC
     u8 fgColor:4;
     u8 bgColor:4;
@@ -104,8 +104,8 @@ struct FontInfo
     u16 (*fontFunction)(struct TextPrinter *x);
     u8 maxLetterWidth;
     u8 maxLetterHeight;
-    u8 letterSpacing;
-    u8 lineSpacing;
+    s8 letterSpacing;
+    s8 lineSpacing;
     u8 unk:4;
     u8 fgColor:4;
     u8 bgColor:4;
@@ -166,7 +166,7 @@ u8 GetKeypadIconTileOffset(u8 keypadIconId);
 u8 GetKeypadIconWidth(u8 keypadIconId);
 u8 GetKeypadIconHeight(u8 keypadIconId);
 void SetDefaultFontsPointer(void);
-u8 GetFontAttribute(u8 fontId, u8 attributeId);
+s8 GetFontAttribute(u8 fontId, u8 attributeId);
 u8 GetMenuCursorDimensionByFont(u8 fontId, u8 whichDimension);
 
 // braille.c
